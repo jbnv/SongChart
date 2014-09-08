@@ -70,19 +70,19 @@
 <table class="table table-condensed table-hover">
 	<thead>
 		<tr>
-			<th data-ng-show="false">Rank</th>
+			<th data-ng-show="showRank">Rank</th>
 			<th>Title</th>
 			<th>Artist</th>
-			<th>Date</th>
+			<th data-ng-show="showDate">Date</th>
 			<th>Score</th>
 		</tr>
 	</thead>
 	<tbody>
 		<tr data-ng-repeat="scoreObject in displayArray">
-			<td data-ng-show="false">{{scoreObject.rank}}</td>
+			<td data-ng-show="showRank">{{scoreObject.rank}}</td>
 			<td>{{songObjectArray[scoreObject.songId].title}}</td>
 			<td>{{songObjectArray[scoreObject.songId].artist}}</td>
-			<td>{{dateString(scoreObject)}}</td>
+			<td data-ng-show="showDate">{{dateString(scoreObject)}}</td>
 			<td>{{scoreObject.score}}</td>
 		</tr>
 	</tbody>

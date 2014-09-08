@@ -45,6 +45,7 @@ songChartApp.controller('songChartController', ['$scope', '$filter', function($s
 	$scope.setFilterMonth = function(m) {
 		$scope.filterMonthValue = m;
 		$scope.filterMonthDisplay = months[m-1];
+		$scope.monthMode($scope.filterYearValue,$scope.filterMonthValue);
 	}
 	
 	$scope.dateString = function(scoreObject) {
@@ -54,6 +55,19 @@ songChartApp.controller('songChartController', ['$scope', '$filter', function($s
 	$scope.defaultMode = function()  {
 		$scope.displayArray = angular.copy($scope.scoreObjectArray);
 		$scope.displayArray = $filter('orderBy')($scope.displayArray, ['year','month','-score']);
+		$scope.showRank = false;
+		$scope.showDate = true;
+    };
+	
+	$scope.monthMode = function(y,m)  {
+		$scope.displayArray = $filter('filter')($scope.scoreObjectArray, {'year':y,'month':m});
+		$scope.displayArray = $filter('orderBy')($scope.displayArray, ['-score']);
+		for (var index in $scope.displayArray) {
+			$scope.displayArray[index].rank = parseInt(index)+1;
+		}
+		$scope.showRank = true;
+		$scope.showDate = false;
+		
     };
 	
 	$scope.init();
