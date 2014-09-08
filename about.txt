@@ -1,17 +1,4 @@
-Artist
-Title
-Score (0-100)
-Period (year-month)
-
 Issues
 * Rendering a wikidot list into JavaScript (JSON)
-
-
-	$scope.makeYearMode = function(y)  {
-		//TODO Extract {year:y} from $scope.scoreObjectArray.
-		//TODO $scope.displayArray = Aggregate extract by year.
-		$scope.displayArray = $filter('orderBy')($scope.displayArray, ['-score']);
-		//TODO Set ranks on $scope.displayArray. 
-    };
 
 	
