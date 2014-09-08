@@ -1,0 +1,36 @@
+<html>
+<head>
+<!-- Library -->
+<script src="lib/angular.js" charset="utf-8"></script>
+<script src="lib/ui-bootstrap-tpls-0.11.0.js" charset="utf-8"></script>
+<link rel="stylesheet" type="text/css" href="lib/bootstrap.css"></link>
+<!-- Application -->
+<script src="data.js" charset="utf-8"></script>
+<script src="songChartApp.js" charset="utf-8"></script>
+<script src="songChartController.js" charset="utf-8"></script>
+</head>
+
+<script>
+</script>
+
+<body data-ng-app="songChartApp" data-ng-controller="songChartController">
+
+<!--TODO Display a listing of all scores recorded thusfar. -->
+<table class="table table-condensed table-hover">
+	<thead>
+		<tr>
+			<th>Title</th><th>Artist</th><th>Date</th><th>Score</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr data-ng-repeat="scoreObject in scoreObjectArray">
+			<td>{{songObjectArray[scoreObject.songId].title}}</td>
+			<td>{{songObjectArray[scoreObject.songId].artist}}</td>
+			<td>{{scoreObject.date}}</td>
+			<td>{{scoreObject.score}}</td>
+		</tr>
+	</tbody>
+</table>
+
+</body>
+</html>

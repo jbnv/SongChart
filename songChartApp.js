@@ -1,0 +1,1 @@
+var songChartApp = angular.module('songChartApp', ['ui.bootstrap']);

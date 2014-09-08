@@ -1,0 +1,10 @@
+Artist
+Title
+Score (0-100)
+Period (year-month)
+
+Issues
+* Rendering a wikidot list into JavaScript (JSON)
+
+
+Step 1: Get data from the Wikidot api.
