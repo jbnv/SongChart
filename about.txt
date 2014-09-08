@@ -7,4 +7,16 @@ Issues
 * Rendering a wikidot list into JavaScript (JSON)
 
 
-Step 1: Get data from the Wikidot api.
+	$scope.makeYearMode = function(y)  {
+		//TODO Extract {year:y} from $scope.scoreObjectArray.
+		//TODO $scope.displayArray = Aggregate extract by year.
+		$scope.displayArray = $filter('orderBy')($scope.displayArray, ['-score']);
+		//TODO Set ranks on $scope.displayArray. 
+    };
+
+	
+	$scope.makeMonthMode = function(y,m)  {
+		//TODO $scope.displayArray =  Extract {year:y} from $scope.scoreObjectArray.
+		$scope.displayArray = $filter('orderBy')($scope.displayArray, ['-score']);
+		//TODO Set ranks on $scope.displayArray. 
+    };

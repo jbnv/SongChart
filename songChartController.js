@@ -1,4 +1,4 @@
-songChartApp.controller('songChartController', function ($scope) {
+songChartApp.controller('songChartController', ['$scope', '$filter', function($scope, $filter) {
 
 	var apikey = "r0JF5IqvvWXmr3JRulYGNE0qd4BKeiMN";
 	
@@ -34,6 +34,7 @@ songChartApp.controller('songChartController', function ($scope) {
 		$scope.filterYearDisplay = "Set Year";
 		$scope.filterMonthValue = 0;
 		$scope.filterMonthDisplay = "Set Month";
+		$scope.defaultMode();
 	}
 	
 	$scope.setFilterYear = function(y) {
@@ -50,5 +51,10 @@ songChartApp.controller('songChartController', function ($scope) {
 		return scoreObject.year + '-' + ("00"+scoreObject.month).substr(-2,2);
 	}
 	
+	$scope.defaultMode = function()  {
+		$scope.displayArray = angular.copy($scope.scoreObjectArray);
+		$scope.displayArray = $filter('orderBy')($scope.displayArray, ['year','month','-score']);
+    };
+	
 	$scope.init();
-});
+}]);
