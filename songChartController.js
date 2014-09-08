@@ -40,6 +40,9 @@ songChartApp.controller('songChartController', ['$scope', '$filter', function($s
 	$scope.setFilterYear = function(y) {
 		$scope.filterYearValue = y;
 		$scope.filterYearDisplay = y;
+		$scope.filterMonthValue = 0;
+		$scope.filterMonthDisplay = '(Select Month)';
+		$scope.yearMode($scope.filterYearValue);
 	}
 
 	$scope.setFilterMonth = function(m) {
@@ -67,8 +70,31 @@ songChartApp.controller('songChartController', ['$scope', '$filter', function($s
 		}
 		$scope.showRank = true;
 		$scope.showDate = false;
-		
     };
+
+	$scope.yearMode = function(y)  {
+		extract = $filter('filter')($scope.scoreObjectArray, {'year':y});
+		collapse = {};
+		// Collapse extract by songId.
+		for (var index in extract) {
+			that = extract[index];
+			if (!collapse[that.songId]) collapse[that.songId] = 0;
+			collapse[that.songId] += that.score;
+		}
+		// Transform collapse array into display array.
+		$scope.displayArray = [];
+		for (var songId in collapse) {
+			score = collapse[songId];
+			$scope.displayArray.push({ songId: songId, score: score });
+		}
+		$scope.displayArray = $filter('orderBy')($scope.displayArray, ['-score']);
+		for (var index in $scope.displayArray) {
+			$scope.displayArray[index].rank = parseInt(index)+1;
+		}
+		$scope.showRank = true;
+		$scope.showDate = false;
+    };
+
 	
 	$scope.init();
 }]);
