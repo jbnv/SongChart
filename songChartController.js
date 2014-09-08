@@ -1,6 +1,8 @@
 songChartApp.controller('songChartController', function ($scope) {
 
 	var apikey = "r0JF5IqvvWXmr3JRulYGNE0qd4BKeiMN";
+	
+	var months = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ]
 
 /*	// Get all of the pages from playlists in the 'score' category.
 	scorePageList = jsAPI(
@@ -25,7 +27,24 @@ songChartApp.controller('songChartController', function ($scope) {
 		$scope.scoreObjectArray.push(scoreObject);
 	}
 */	
-	$scope.songObjectArray = songData;
-	$scope.scoreObjectArray = scoreData;
+	$scope.init = function() {
+		$scope.songObjectArray = songData;
+		$scope.scoreObjectArray = scoreData;
+		$scope.filterYearValue = 0;
+		$scope.filterYearDisplay = "Set Year";
+		$scope.filterMonthValue = 0;
+		$scope.filterMonthDisplay = "Set Month";
+	}
+	
+	$scope.setFilterYear = function(y) {
+		$scope.filterYearValue = y;
+		$scope.filterYearDisplay = y;
+	}
 
+	$scope.setFilterMonth = function(m) {
+		$scope.filterMonthValue = m;
+		$scope.filterMonthDisplay = months[y-1];
+	}
+	
+	$scope.init();
 });

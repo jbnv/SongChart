@@ -15,15 +15,71 @@
 
 <body data-ng-app="songChartApp" data-ng-controller="songChartController">
 
-<!--TODO Display a listing of all scores recorded thusfar. -->
+<nav role="navigation" class="navbar navbar-default navbar-fixed-top">
+        <ul role="navigation" class="nav navbar-nav">
+            <li class="dropdown">
+                <a href="#" data-toggle="dropdown" class="dropdown-toggle">{{filterYearDisplay}} <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li data-ng-click="setFilterYear(0)"><a href="#">None</a></li>
+                    <li data-ng-click="setFilterYear(1986)"><a href="#">1986</a></li>
+                    <li data-ng-click="setFilterYear(1987)"><a href="#">1987</a></li>
+                    <li data-ng-click="setFilterYear(1988)"><a href="#">1988</a></li>
+                    <li data-ng-click="setFilterYear(1989)"><a href="#">1989</a></li>
+                    <li data-ng-click="setFilterYear(1990)"><a href="#">1990</a></li>
+                    <li data-ng-click="setFilterYear(1991)"><a href="#">1991</a></li>
+                    <li data-ng-click="setFilterYear(1992)"><a href="#">1992</a></li>
+                    <li data-ng-click="setFilterYear(1993)"><a href="#">1993</a></li>
+                    <li data-ng-click="setFilterYear(1994)"><a href="#">1994</a></li>
+                    <li data-ng-click="setFilterYear(1995)"><a href="#">1995</a></li>
+                </ul>
+            </li>
+            <li class="dropdown">
+                <a href="#" data-toggle="dropdown" class="dropdown-toggle">{{filterMonthDisplay}} <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li data-ng-click="setFilterMonth(0)"><a href="#">Year</a></li>
+                    <li data-ng-click="setFilterMonth(1)"><a href="#">January</a></li>
+                    <li data-ng-click="setFilterMonth(2)"><a href="#">February</a></li>
+                    <li data-ng-click="setFilterMonth(3)"><a href="#">March</a></li>
+                    <li data-ng-click="setFilterMonth(4)"><a href="#">April</a></li>
+                    <li data-ng-click="setFilterMonth(5)"><a href="#">May</a></li>
+                    <li data-ng-click="setFilterMonth(6)"><a href="#">June</a></li>
+                    <li data-ng-click="setFilterMonth(7)"><a href="#">July</a></li>
+                    <li data-ng-click="setFilterMonth(8)"><a href="#">August</a></li>
+                    <li data-ng-click="setFilterMonth(9)"><a href="#">September</a></li>
+                    <li data-ng-click="setFilterMonth(10)"><a href="#">October</a></li>
+                    <li data-ng-click="setFilterMonth(11)"><a href="#">November</a></li>
+                    <li data-ng-click="setFilterMonth(12)"><a href="#">December</a></li>
+                </ul>
+            </li>
+			<li><a href="#">
+				<form class="form-inline">
+					<div class="form-group">
+						<label class="sr-only" for="generateNameCount">Count</label>
+						<input type="number" size="5" class="form-control" id="generateNameCount" placeholder="Count" data-ng-model="nameCount">
+					</div>
+				</form>
+			</a></li>
+        </ul>
+        <ul role="navigation" class="nav navbar-nav navbar-right">			
+			<li><a href="#" data-ng-click="init();">Reset</a></li>
+        </ul>	
+</nav>
+
+<br /><br/ ><br/ ><br/ ><!-- spacer to move table underneath nav bar -->
+
 <table class="table table-condensed table-hover">
 	<thead>
 		<tr>
-			<th>Title</th><th>Artist</th><th>Date</th><th>Score</th>
+			<th data-ng-show="false">Rank</th>
+			<th>Title</th>
+			<th>Artist</th>
+			<th>Date</th>
+			<th>Score</th>
 		</tr>
 	</thead>
 	<tbody>
 		<tr data-ng-repeat="scoreObject in scoreObjectArray">
+			<td data-ng-show="false">{{scoreObject.rank}}</td>
 			<td>{{songObjectArray[scoreObject.songId].title}}</td>
 			<td>{{songObjectArray[scoreObject.songId].artist}}</td>
 			<td>{{scoreObject.date}}</td>
