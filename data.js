@@ -16,7 +16,9 @@ var songData = [
 
 //TODO Get score data from playlists site.
 var scoreData = [
-	{ songId: 0, date: '1991-08', score: 90 },
-	{ songId: 0, date: '1991-09', score: 100 },
-	{ songId: 1, date: '1991-09', score: 99 }
+	{ songId: 0, year: 1991, month: 8, score: 90 },
+	{ songId: 0, year: 1991, month: 9, score: 100 },
+	{ songId: 1, year: 1991, month: 9, score: 99 },
+	{ songId: 2, year: 1989, month: 10, score: 100 },
+	{ songId: 2, year: 1989, month: 11, score: 100 }
 ];

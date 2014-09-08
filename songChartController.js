@@ -43,7 +43,11 @@ songChartApp.controller('songChartController', function ($scope) {
 
 	$scope.setFilterMonth = function(m) {
 		$scope.filterMonthValue = m;
-		$scope.filterMonthDisplay = months[y-1];
+		$scope.filterMonthDisplay = months[m-1];
+	}
+	
+	$scope.dateString = function(scoreObject) {
+		return scoreObject.year + '-' + ("00"+scoreObject.month).substr(-2,2);
 	}
 	
 	$scope.init();
