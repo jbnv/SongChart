@@ -1,10 +1,8 @@
-songChartApp.controller('songChartController', ['$scope', '$filter', function($scope, $filter) {
+function SongChartController($scope,$filter,dataService) {
 
 	var months = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ]
 	
 	$scope.init = function() {
-		$scope.songObjectArray = songData;
-		$scope.scoreObjectArray = scoreData;
 		$scope.filterYearValue = 0;
 		$scope.filterYearDisplay = "Set Year";
 		$scope.filterMonthValue = 0;
@@ -30,25 +28,30 @@ songChartApp.controller('songChartController', ['$scope', '$filter', function($s
 		return scoreObject.year + '-' + ("00"+scoreObject.month).substr(-2,2);
 	}
 	
+	function massageScoreEntries() {
+		for (var index in $scope.displayArray) {
+			dataService.massageScoreEntry($scope.displayArray[index],parseInt(index)+1);
+		}
+	}
+	
 	$scope.defaultMode = function()  {
-		$scope.displayArray = angular.copy($scope.scoreObjectArray);
+		$scope.displayArray = angular.copy(dataService.scoreData);
 		$scope.displayArray = $filter('orderBy')($scope.displayArray, ['year','month','-score']);
+		massageScoreEntries();
 		$scope.showRank = false;
 		$scope.showDate = true;
     };
 	
 	$scope.monthMode = function(y,m)  {
-		$scope.displayArray = $filter('filter')($scope.scoreObjectArray, {'year':y,'month':m});
+		$scope.displayArray = $filter('filter')(dataService.scoreData, {'year':y,'month':m});
 		$scope.displayArray = $filter('orderBy')($scope.displayArray, ['-score']);
-		for (var index in $scope.displayArray) {
-			$scope.displayArray[index].rank = parseInt(index)+1;
-		}
+		massageScoreEntries();
 		$scope.showRank = true;
 		$scope.showDate = false;
     };
 
 	$scope.yearMode = function(y)  {
-		extract = $filter('filter')($scope.scoreObjectArray, {'year':y});
+		extract = $filter('filter')(dataService.scoreData, {'year':y});
 		collapse = {};
 		// Collapse extract by songId.
 		for (var index in extract) {
@@ -63,13 +66,10 @@ songChartApp.controller('songChartController', ['$scope', '$filter', function($s
 			$scope.displayArray.push({ songId: songId, score: score });
 		}
 		$scope.displayArray = $filter('orderBy')($scope.displayArray, ['-score']);
-		for (var index in $scope.displayArray) {
-			$scope.displayArray[index].rank = parseInt(index)+1;
-		}
+		massageScoreEntries();
 		$scope.showRank = true;
 		$scope.showDate = false;
     };
-
 	
 	$scope.init();
-}]);
+}
