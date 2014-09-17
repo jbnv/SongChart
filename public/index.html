@@ -1,13 +1,17 @@
 <html>
 <head>
 <!-- Library -->
-<script src="lib/angular.js" charset="utf-8"></script>
-<script src="lib/ui-bootstrap-tpls-0.11.0.js" charset="utf-8"></script>
-<link rel="stylesheet" type="text/css" href="lib/bootstrap.css"></link>
+<script src="/lib/angular.js" charset="utf-8"></script>
+<script src="/lib/ui-bootstrap-tpls-0.11.0.js" charset="utf-8"></script>
+<link rel="stylesheet" type="text/css" href="/lib/bootstrap.css"></link>
 <!-- Application -->
-<script src="data.js" charset="utf-8"></script>
-<script src="songChartApp.js" charset="utf-8"></script>
-<script src="songChartController.js" charset="utf-8"></script>
+<script src="/js/dataService.js" charset="utf-8"></script>
+<script src="/js/songChartController.js" charset="utf-8"></script>
+<script>
+	var songChartApp = angular.module('songChartApp', ['ui.bootstrap']);
+	songChartApp.service('dataService',DataService);
+	songChartApp.controller('songChartController', ['$scope','$filter','dataService',SongChartController]);
+</script>
 </head>
 
 <script>
@@ -72,8 +76,8 @@
 	<tbody>
 		<tr data-ng-repeat="scoreObject in displayArray">
 			<td data-ng-show="showRank">{{scoreObject.rank}}</td>
-			<td>{{songObjectArray[scoreObject.songId].title}}</td>
-			<td>{{songObjectArray[scoreObject.songId].artist}}</td>
+			<td>{{scoreObject.song.title}}</td>
+			<td>{{scoreObject.song.artist}}</td>
 			<td data-ng-show="showDate">{{dateString(scoreObject)}}</td>
 			<td>{{scoreObject.score}}</td>
 		</tr>
