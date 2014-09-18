@@ -1,4 +1,7 @@
-function SongChartController($scope,$filter,dataService) {
+function SongChartController(
+	$scope,$filter,
+	songService,scoreService,artistService
+) {
 
 	var months = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ]
 	
@@ -7,7 +10,6 @@ function SongChartController($scope,$filter,dataService) {
 		$scope.filterYearDisplay = "Set Year";
 		$scope.filterMonthValue = 0;
 		$scope.filterMonthDisplay = "Set Month";
-		$scope.defaultMode();
 	}
 	
 	$scope.setFilterYear = function(y) {
@@ -27,46 +29,34 @@ function SongChartController($scope,$filter,dataService) {
 	$scope.dateString = function(scoreObject) {
 		return scoreObject.year + '-' + ("00"+scoreObject.month).substr(-2,2);
 	}
-	
-	function massageScoreEntries() {
-		for (var index in $scope.displayArray) {
-			dataService.massageScoreEntry($scope.displayArray[index],parseInt(index)+1);
-		}
+		
+	function getData(dateString) {
+		data = scoreService.getData(dateString);
+		// data: An object { songId, score }
+		$scope.displayArray = [];
+		
+		angular.forEach(data, function(score,songId) {
+			song = songService.getSong(songId);
+			artist = artistService.getArtist(song.artistSlug);
+			this.push({ 'song': song, 'artist': artist, 'score': score, 'songId': songId });
+		}, $scope.displayArray);
+		
+		$scope.displayArray = $filter('orderBy')($scope.displayArray, ['-score']);
+		
+		angular.forEach($scope.displayArray, function(entry,index) {
+			entry.rank = parseInt(index)+1;
+		});
+		
 	}
 	
-	$scope.defaultMode = function()  {
-		$scope.displayArray = angular.copy(dataService.scoreData);
-		$scope.displayArray = $filter('orderBy')($scope.displayArray, ['year','month','-score']);
-		massageScoreEntries();
-		$scope.showRank = false;
-		$scope.showDate = true;
-    };
-	
 	$scope.monthMode = function(y,m)  {
-		$scope.displayArray = $filter('filter')(dataService.scoreData, {'year':y,'month':m});
-		$scope.displayArray = $filter('orderBy')($scope.displayArray, ['-score']);
-		massageScoreEntries();
+		getData($scope.dateString({'year':y,'month':m}));
 		$scope.showRank = true;
 		$scope.showDate = false;
     };
 
 	$scope.yearMode = function(y)  {
-		extract = $filter('filter')(dataService.scoreData, {'year':y});
-		collapse = {};
-		// Collapse extract by songId.
-		for (var index in extract) {
-			that = extract[index];
-			if (!collapse[that.songId]) collapse[that.songId] = 0;
-			collapse[that.songId] += that.score;
-		}
-		// Transform collapse array into display array.
-		$scope.displayArray = [];
-		for (var songId in collapse) {
-			score = collapse[songId];
-			$scope.displayArray.push({ songId: songId, score: score });
-		}
-		$scope.displayArray = $filter('orderBy')($scope.displayArray, ['-score']);
-		massageScoreEntries();
+		getData(''+y);
 		$scope.showRank = true;
 		$scope.showDate = false;
     };

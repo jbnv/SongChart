@@ -5,12 +5,17 @@
 <script src="/lib/ui-bootstrap-tpls-0.11.0.js" charset="utf-8"></script>
 <link rel="stylesheet" type="text/css" href="/lib/bootstrap.css"></link>
 <!-- Application -->
-<script src="/js/dataService.js" charset="utf-8"></script>
+<script src="/js/artistService.js" charset="utf-8"></script>
+<script src="/js/songService.js" charset="utf-8"></script>
+<script src="/js/scoreService.js" charset="utf-8"></script>
 <script src="/js/songChartController.js" charset="utf-8"></script>
 <script>
 	var songChartApp = angular.module('songChartApp', ['ui.bootstrap']);
-	songChartApp.service('dataService',DataService);
-	songChartApp.controller('songChartController', ['$scope','$filter','dataService',SongChartController]);
+	songChartApp.service('artistService',ArtistService);
+	songChartApp.service('songService',SongService);
+	songChartApp.service('scoreService',ScoreService);
+	songChartApp.controller('songChartController', 
+		['$scope','$filter','songService','scoreService','artistService',SongChartController]);
 </script>
 </head>
 
@@ -76,8 +81,8 @@
 	<tbody>
 		<tr data-ng-repeat="scoreObject in displayArray">
 			<td data-ng-show="showRank">{{scoreObject.rank}}</td>
-			<td>{{scoreObject.song.title}}</td>
-			<td>{{scoreObject.song.artist}}</td>
+			<td><a href="http://playlists.wikidot.com/s:{{ scoreObject.songId }}">{{scoreObject.song.title}}</a></td>
+			<td><a href="http://playlists.wikidot.com/{{ scoreObject.song.artistSlug }}">{{scoreObject.artist.name}}</a></td>
 			<td data-ng-show="showDate">{{dateString(scoreObject)}}</td>
 			<td>{{scoreObject.score}}</td>
 		</tr>
