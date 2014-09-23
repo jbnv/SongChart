@@ -35,24 +35,6 @@ function callSite(method,parameters,callback) {
 	client.methodCall(method, [parameters], callback);
 }
 	
-function getScores(target,year,month) {
-	slug = "calendar:"+year+ (month ? "-"+("00"+scoreObject.month).substr(-2,2));
-	
-	// Get score data.
-	method = 'pages.select';
-	param = {
-		'site': 'playlists',
-		'categories': ['score'],
-		'_date' : slug
-	};
-	callSite(method,param,function(data) {
-		for (var index in data) {
-			target.push(data[index]);
-		}
-	});
-	
-}
-
 //TODO app.get('/scores/decade/:decade', function(request,response) {
 
 app.get('/scores/:year', function(request,response) {
@@ -84,7 +66,10 @@ app.get('/scores/:year/:month', function(request,response) {
 		'categories': ['score'],
 		'_date' : slug
 	};
-	callSite(method,param,response.json);
+	callSite(method,param, function(error,value) {
+		console.log(error);
+		response.json(value);
+	});
 	
 });
 
@@ -94,7 +79,11 @@ app.get('/page/:slug', function(request,response) {
 		'site': 'playlists',
 		'page': request.params.slug
 	};
-	callSite(method,param,function(error,value) { res.json(value); } );
+	console.log('/page/'+request.params.slug);
+	callSite(method,param, function(error,value) {
+		console.log('error',error);
+		response.json(value);
+	});
 });
 
 

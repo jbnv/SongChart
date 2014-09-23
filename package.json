@@ -6,7 +6,8 @@
 		"express": "4.0.0",
 		"ejs": "*",
 		"querystring": "0.2.0",
-		"xmlrpc": "*"
+		"xmlrpc": "*",
+		"promises": "*"
 	},
 	"engines": {
 		"node": "0.10.26"
