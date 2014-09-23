@@ -1,5 +1,6 @@
 Issues
 * Rendering a wikidot list into JavaScript (JSON)
+<script src="https://jsapi.wikidot.com/local--code/js/4"></script>
 
 	
 	var apikey = "r0JF5IqvvWXmr3JRulYGNE0qd4BKeiMN";

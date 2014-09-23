@@ -3,6 +3,7 @@
 var Express = require('express')/*,
 	Wikidot = require('./lib/wikidot');*/
 var XmlRpc = require('xmlrpc'); //TEMP
+var Promises = require('promises');
 
 // setup middleware
 var app = Express();
@@ -12,9 +13,91 @@ app.set('views', __dirname + '/views'); //optional since express defaults to CWD
 app.engine('html', require('ejs').renderFile);
 
 // render index page
-app.get('/', function(req, res) {
+app.get('/', function(request,response) {
 	res.render("index.html");
 });
+
+// Data access pages.
+
+function callSite(method,parameters,callback) {
+ 
+	var clientOptions = {
+		host: 'www.wikidot.com',
+		port: 443,
+		path: '/xml-rpc-api.php',
+		basic_auth: {
+			user: 'jbnv',
+			pass: 'w8nk4WBpinduE75nrgbYUFObIJDkNLXs'
+		}
+	};
+	 
+	var client = XmlRpc.createSecureClient(clientOptions);
+	client.methodCall(method, [parameters], callback);
+}
+	
+function getScores(target,year,month) {
+	slug = "calendar:"+year+ (month ? "-"+("00"+scoreObject.month).substr(-2,2));
+	
+	// Get score data.
+	method = 'pages.select';
+	param = {
+		'site': 'playlists',
+		'categories': ['score'],
+		'_date' : slug
+	};
+	callSite(method,param,function(data) {
+		for (var index in data) {
+			target.push(data[index]);
+		}
+	});
+	
+}
+
+//TODO app.get('/scores/decade/:decade', function(request,response) {
+
+app.get('/scores/:year', function(request,response) {
+	year = request.params.year;
+	
+	slug = "calendar:"+year
+	
+	// Get score data.
+	method = 'pages.select';
+	param = {
+		'site': 'playlists',
+		'categories': ['score'],
+		'_date' : slug
+	};
+	callSite(method,param,response.json);
+	
+});
+
+app.get('/scores/:year/:month', function(request,response) {
+	year = request.params.year;
+	month = request.params.month;
+
+	slug = "calendar:"+year+"-"+("00"+scoreObject.month).substr(-2,2);
+	
+	// Get score data.
+	method = 'pages.select';
+	param = {
+		'site': 'playlists',
+		'categories': ['score'],
+		'_date' : slug
+	};
+	callSite(method,param,response.json);
+	
+});
+
+app.get('/page/:slug', function(request,response) {
+	method = 'pages.get_one';
+	param = {
+		'site': 'playlists',
+		'page': request.params.slug
+	};
+	callSite(method,param,function(error,value) { res.json(value); } );
+});
+
+
 
 // There are many useful environment variables available in process.env.
 // VCAP_APPLICATION contains useful information about a deployed application.
