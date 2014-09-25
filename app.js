@@ -1,9 +1,7 @@
 /*jshint node:true*/
 
-var Express = require('express')/*,
-	Wikidot = require('./lib/wikidot');*/
-var XmlRpc = require('xmlrpc'); //TEMP
-var Promises = require('promises');
+var Express = require('express'),
+	Wikidot = require('./public/js/wikidot');
 
 // setup middleware
 var app = Express();
@@ -17,74 +15,35 @@ app.get('/', function(request,response) {
 	res.render("index.html");
 });
 
-// Data access pages.
+// New idea: Preload the score data at app startup.
+// Then load associated data on demand.
 
-function callSite(method,parameters,callback) {
- 
-	var clientOptions = {
-		host: 'www.wikidot.com',
-		port: 443,
-		path: '/xml-rpc-api.php',
-		basic_auth: {
-			user: 'jbnv',
-			pass: 'w8nk4WBpinduE75nrgbYUFObIJDkNLXs'
-		}
-	};
-	 
-	var client = XmlRpc.createSecureClient(clientOptions);
-	client.methodCall(method, [parameters], callback);
-}
-	
+Wikidot.username = 'jbnv';
+Wikidot.apiKey = 'w8nk4WBpinduE75nrgbYUFObIJDkNLXs';
+Wikidot.site = 'playlists';
+
 //TODO app.get('/scores/decade/:decade', function(request,response) {
 
 app.get('/scores/:year', function(request,response) {
 	year = request.params.year;
 	
-	slug = "calendar:"+year
-	
-	// Get score data.
-	method = 'pages.select';
-	param = {
-		'site': 'playlists',
-		'categories': ['score'],
-		'_date' : slug
+	parameters = {
+		'site': Wikidot.site,
+		'categories': ['s'],
+		'tags_all': ['_'+ year]
 	};
-	callSite(method,param,response.json);
+	console.log('parameters',parameters);
 	
-});
-
-app.get('/scores/:year/:month', function(request,response) {
-	year = request.params.year;
-	month = request.params.month;
-
-	slug = "calendar:"+year+"-"+("00"+scoreObject.month).substr(-2,2);
-	
-	// Get score data.
-	method = 'pages.select';
-	param = {
-		'site': 'playlists',
-		'categories': ['score'],
-		'_date' : slug
-	};
-	callSite(method,param, function(error,value) {
-		console.log(error);
+	callback = function(error,value) {
+		console.log('/scores/:year error',error);
 		response.json(value);
-	});
+		//TODO Process the year data before sending to the client.
+	}
+	
+	Wikidot.call('pages.select',parameters,callback);
 	
 });
 
-app.get('/page/:slug', function(request,response) {
-	method = 'pages.get_one';
-	param = {
-		'site': 'playlists',
-		'page': request.params.slug
-	};
-	console.log('/page/'+request.params.slug);
-	callSite(method,param, function(error,value) {
-		console.log('error',error);
-		response.json(value);
-	});
-});
 
 
 
