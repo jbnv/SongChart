@@ -76,6 +76,9 @@
 			<th>Artist</th>
 			<th data-ng-show="showDate">Date</th>
 			<th>Score</th>
+			<th>Debut</th>
+			<th>Peak</th>
+			<th>Months</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -85,6 +88,9 @@
 			<td><a href="http://playlists.wikidot.com/{{ scoreObject.song.artistSlug }}">{{scoreObject.artist.name}}</a></td>
 			<td data-ng-show="showDate">{{dateString(scoreObject)}}</td>
 			<td>{{scoreObject.score}}</td>
+			<td>{{scoreObject.debut}}</td>
+			<td>{{scoreObject.peak}}</td>
+			<td>{{scoreObject.months}}</td>
 		</tr>
 	</tbody>
 </table>
