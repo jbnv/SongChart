@@ -1,8 +1,7 @@
 function SongChartController(
 	$scope,$filter,$http,
-	songService,scoreService,artistService
+	artistService
 ) {
-	songService.$http = $http;
 	artistService.$http = $http;
 
 	var months = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ]
@@ -32,16 +31,7 @@ function SongChartController(
 		return scoreObject.year + '-' + ("00"+scoreObject.month).substr(-2,2);
 	}
 		
-	function getData(dateString) {
-		data = scoreService.getData(dateString);
-		// data: An object { songId, score }
-		$scope.displayArray = [];
-		
-		angular.forEach(data, function(score,songId) {
-			$scope.displayArray.push({ 'score': score, 'songId': songId });
-		});
-		$scope.displayArray = $filter('orderBy')($scope.displayArray, ['-score']);
-		
+/*TODO Re-implement artists		
 		angular.forEach($scope.displayArray, function(scoreObject,index) {
 			songService.getSong('s:'+scoreObject.songId)
 				.then(function(pSong) { scoreObject.song = pSong; })
@@ -52,7 +42,7 @@ function SongChartController(
 						});
 				});
 		});
-	}
+*/
 	
 	$scope.monthMode = function(y,m)  {
 		getData($scope.dateString({'year':y,'month':m}));
@@ -66,7 +56,7 @@ function SongChartController(
 		$http.get('scores/'+y)
 			.then(function(result) {
 				console.log(result);
-				$scope.displayArray = result.data;
+				$scope.displayArray = $filter('orderBy')(result.data, ['-score']);
 			})
     };
 	

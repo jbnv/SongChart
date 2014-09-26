@@ -6,16 +6,12 @@
 <link rel="stylesheet" type="text/css" href="/lib/bootstrap.css"></link>
 <!-- Application -->
 <script src="/js/artistService.js" charset="utf-8"></script>
-<script src="/js/songService.js" charset="utf-8"></script>
-<script src="/js/scoreService.js" charset="utf-8"></script>
 <script src="/js/songChartController.js" charset="utf-8"></script>
 <script>
 	var songChartApp = angular.module('songChartApp', ['ui.bootstrap']);
 	songChartApp.service('artistService',ArtistService);
-	songChartApp.service('songService',SongService);
-	songChartApp.service('scoreService',ScoreService);
 	songChartApp.controller('songChartController', 
-		['$scope','$filter','$http','songService','scoreService','artistService',SongChartController]);
+		['$scope','$filter','$http','artistService',SongChartController]);
 </script>
 </head>
 
