@@ -110,6 +110,9 @@ app.get('/scores/:year/:month', function(request,response) {
 				//TODO parse song date
 				if (/^calendar:\d\d\d\d-\d\d$/.test(song.date)) {
 					month0 = parseInt(song.date.split('-')[1]);
+					if (month0 == month) {
+						song.isDebut = true;
+					}
 					if (month0 <= month) {
 						song.score = monthlyScore(
 							parseInt(song.debutrank),parseInt(song.peakrank),

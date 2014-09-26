@@ -4,6 +4,7 @@
 <script src="/lib/angular.js" charset="utf-8"></script>
 <script src="/lib/ui-bootstrap-tpls-0.11.0.js" charset="utf-8"></script>
 <link rel="stylesheet" type="text/css" href="/lib/bootstrap.css"></link>
+<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
 <!-- Application -->
 <script src="/js/songChartController.js" charset="utf-8"></script>
 <script>
@@ -59,6 +60,7 @@
 			<th>Title</th>
 			<th>Artist</th>
 			<th data-ng-show="showDate">Date</th>
+			<th data-ng-show="showIsDebut"></th>
 			<th>Score</th>
 			<th>Debut</th>
 			<th>Peak</th>
@@ -70,6 +72,7 @@
 			<td data-ng-show="showRank">{{ $index+1 }}</td>
 			<td><a href="http://playlists.wikidot.com/{{ song.fullname }}">{{song.title}}</a></td>
 			<td><a href="http://playlists.wikidot.com/{{ song.artist }}">{{ getArtist(song.artist).name }}</a></td>
+			<th data-ng-show="showIsDebut"><i class="fa fa-star" data-ng-show="song.isDebut"></i></th>
 			<td data-ng-show="showDate">{{dateString(song)}}</td>
 			<td>{{song.score}}</td>
 			<td>{{song.debutrank}}</td>

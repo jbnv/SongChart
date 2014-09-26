@@ -33,6 +33,8 @@ function SongChartController(
 		$scope.getData($scope.filterYearValue,$scope.filterMonthValue);
 	}
 	
+
+	
 	$scope.dateString = function(scoreObject) {
 		return scoreObject.year + '-' + ("00"+scoreObject.month).substr(-2,2);
 	}
@@ -65,6 +67,7 @@ function SongChartController(
 	$scope.getData = function(y,m)  {
 		$scope.showRank = true;
 		$scope.showDate = false;
+		$scope.showIsDebut = m;
 		$http.get('scores/'+y+(m?'/'+m:''))
 			.then(function(result) {
 				$scope.displayArray = $filter('orderBy')(result.data, ['-score']);
