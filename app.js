@@ -66,11 +66,11 @@ app.get('/scores/:year', function(request,response) {
 			returnValue = [];
 			for (var index in allResults) {
 				song = new Wikidot.WikidotPage();
-				song.injectContent(allResults[index], song.ContentTypes.DataForm);
+				song.injectContent(allResults[index], Wikidot.ContentTypes.DataForm);
 				song.score = annualScore(parseInt(song.debutrank),parseInt(song.peakrank),parseInt(song.months));
+				//TODO Get artist.
 				returnValue.push(song);
 			}
-			console.log('Done!',returnValue.length);
 			return returnValue;
 		}
     ).then(

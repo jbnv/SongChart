@@ -5,6 +5,12 @@
 
 var XmlRpc = require('xmlrpc');  // https://www.npmjs.org/package/xmlrpc
 
+exports.ContentTypes = {
+	'General' : 0,
+	'DataForm' : 1,
+	'LiveTemplate' : 2
+};
+
 exports.username = ''; // name of the user holding the API key
 
 exports.apiKey = '';
@@ -73,20 +79,15 @@ exports.getPage = function(fullname,callback) {
 
 exports.WikidotPage = function() {
 
-	this.ContentTypes = {
-		'General' : 0,
-		'DataForm' : 1,
-		'LiveTemplate' : 2
-	};
-
 	this.injectContent = function(oData,contentType) {
 	
+		this.fullname = oData.fullname;
 		this.title = oData.title;
 		this.tags = oData.tags;
 		this.parent_fullname = oData.parent_fullname;
 		this.content = oData.content;
 		this.contentType = contentType;
-		if (contentType == this.ContentTypes.DataForm) {
+		if (contentType == exports.ContentTypes.DataForm) {
 			// Split the content into separate fields.
 			content = oData.content.split("\n");
 			for (index in content) {
@@ -102,7 +103,7 @@ exports.WikidotPage = function() {
 					this[parts[0]] = text;
 				}
 			}
-		} else if (contentType == this.ContentTypes.LiveTemplate) {
+		} else if (contentType == exports.ContentTypes.LiveTemplate) {
 			// Split content into an array of sections.
 			this.contentArray = oData.content.split("\n====\n");
 		}

@@ -82,15 +82,15 @@
 		</tr>
 	</thead>
 	<tbody>
-		<tr data-ng-repeat="scoreObject in displayArray">
+		<tr data-ng-repeat="song in displayArray">
 			<td data-ng-show="showRank">{{ $index+1 }}</td>
-			<td><a href="http://playlists.wikidot.com/s:{{ scoreObject.songId }}">{{scoreObject.song.title}}</a></td>
-			<td><a href="http://playlists.wikidot.com/{{ scoreObject.song.artistSlug }}">{{scoreObject.artist.name}}</a></td>
-			<td data-ng-show="showDate">{{dateString(scoreObject)}}</td>
-			<td>{{scoreObject.score}}</td>
-			<td>{{scoreObject.debut}}</td>
-			<td>{{scoreObject.peak}}</td>
-			<td>{{scoreObject.months}}</td>
+			<td><a href="http://playlists.wikidot.com/{{ song.fullname }}">{{song.title}}</a></td>
+			<td><a href="http://playlists.wikidot.com/{{ song.artistSlug }}">{{song.artist.name}}</a></td>
+			<td data-ng-show="showDate">{{dateString(song)}}</td>
+			<td>{{song.score}}</td>
+			<td>{{song.debutrank}}</td>
+			<td>{{song.peakrank}}</td>
+			<td>{{song.months}}</td>
 		</tr>
 	</tbody>
 </table>
