@@ -16,12 +16,27 @@ function rankToScore(rank) {
 }
 
 function annualScore(debut,peak,months) {
-	value = Math.floor(rankToScore(debut)+months*rankToScore(peak));
-	console.log('annualScore',debut,peak,months,value);
-	return value;
+	return Math.floor(rankToScore(debut)+months*rankToScore(peak));
+	 value;
 }
 
-
+function monthlyScore(debut,peak,totalMonths,monthIndex) {
+	value = 0;
+	if (totalMonths <= 0) return 0;
+	if (totalMonths == 1) {
+		value = Math.floor((1/2)*rankToScore(peak)+(1/4)*rankToScore(debut));
+	} else {
+		if (monthIndex == 0) 
+			value = Math.floor((1/2)*rankToScore(peak)+(1/2)*rankToScore(debut));
+		else {
+			numerator = totalMonths*2-monthIndex*2-1;
+			denominator = totalMonths*2-2;
+			value = Math.floor((numerator/denominator)*rankToScore(peak));
+		}
+	}
+	return value > 0 ? value : 0;
+}
+				
 // render index page
 app.get('/', function(request,response) {
 	res.render("index.html");
@@ -51,17 +66,18 @@ function downloadSongList(params) {
 	return Q.nfcall(Wikidot.call, 'pages.select', songListP);
 }
 
+function getPages(list) {
+	var promises = list.map(function(slug) {
+		return Q.nfcall(Wikidot.getPage, slug);
+	});
+	return Q.all(promises);
+}
+
 app.get('/scores/:year', function(request,response) {
 
     downloadSongList(request.params)
-    .then(
-		function(list) {
-			var promises = list.map(function(slug) {
-				return Q.nfcall(Wikidot.getPage, slug);
-			});
-			return Q.all(promises);
-		}
-	).then(
+    .then(getPages)
+	.then(
 		function(allResults) {
 			returnValue = [];
 			for (var index in allResults) {
@@ -78,20 +94,48 @@ app.get('/scores/:year', function(request,response) {
 	).done();
 });
 
-function getPage(fullname) {
-	parameters = {
-		'site': Wikidot.site,
-		'page': fullname
-	};
-	return Q.nfcall(Wikidot.call, 'pages.get_one', parameters);
-}
+app.get('/scores/:year/:month', function(request,response) {
+
+	month = request.params.month;
+
+    downloadSongList(request.params)
+    .then(getPages)
+    .then(
+		function(allResults) {
+			returnValue = [];
+			for (var index in allResults) {
+				song = new Wikidot.WikidotPage();
+				song.injectContent(allResults[index], Wikidot.ContentTypes.DataForm);
+				song.score = 0;
+				//TODO parse song date
+				if (/^calendar:\d\d\d\d-\d\d$/.test(song.date)) {
+					month0 = parseInt(song.date.split('-')[1]);
+					if (month0 <= month) {
+						song.score = monthlyScore(
+							parseInt(song.debutrank),parseInt(song.peakrank),
+							parseInt(song.months), month-month0
+						);
+					}
+				}
+				if (song.score > 0) {
+					//TODO Get artist.
+					returnValue.push(song);
+				}
+			}
+			return returnValue;
+		}
+    ).then(
+		function(returnValue) { response.json(returnValue); }
+	).done();
+});
 
 app.get('/page/:fullname', function(request,response) {
 
-    getPage(request.params.fullname)
+    getPages([request.params.fullname])
     .then(
 		function(returnValue) { response.json(returnValue); }
 	).done();
+	
 });
 
 
