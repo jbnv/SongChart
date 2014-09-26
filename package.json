@@ -7,7 +7,7 @@
 		"ejs": "*",
 		"querystring": "0.2.0",
 		"xmlrpc": "*",
-		"promises": "*"
+		"q": "*"
 	},
 	"engines": {
 		"node": "0.10.26"
