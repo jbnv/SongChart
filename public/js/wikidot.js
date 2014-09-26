@@ -70,3 +70,77 @@ exports.getPage = function(fullname,callback) {
 		'page': fullname
 	}, callback);
 };
+
+exports.WikidotPage = function() {
+
+	this.ContentTypes = {
+		'General' : 0,
+		'DataForm' : 1,
+		'LiveTemplate' : 2
+	};
+
+	this.injectContent = function(oData,contentType) {
+	
+		this.title = oData.title;
+		this.tags = oData.tags;
+		this.parent_fullname = oData.parent_fullname;
+		this.content = oData.content;
+		this.contentType = contentType;
+		if (contentType == this.ContentTypes.DataForm) {
+			// Split the content into separate fields.
+			content = oData.content.split("\n");
+			for (index in content) {
+				parts = content[index].split(": ");
+				text = parts[1];
+				if (text) {
+					if (text.substr(0,1) == '\'') {
+						text = text.substr(1,text.length-2);
+					}
+					if (text.substr(0,1) == '\"') {
+						text = text.substr(1,text.length-2);
+					}
+					this[parts[0]] = text;
+				}
+			}
+		} else if (contentType == this.ContentTypes.LiveTemplate) {
+			// Split content into an array of sections.
+			this.contentArray = oData.content.split("\n====\n");
+		}
+	}
+
+	// [ slug: { selected, title, fn: change function } ]
+	this.changeProposals = [];
+
+	// Outbound object with parameters that will be given to the Wikidot API.
+	
+	this.addProposal = function(oProposal) {
+		this.changeProposals.push({
+			'selected': true,
+			'title': oProposal.title,
+			'fn': oProposal.apply
+		});
+	}
+	
+	this.compileChangeProposals = function() {
+		//request = angular.copy(this);
+		
+		angular.forEach(this.changeProposals, function(oProposal, index) {
+			oProposal.fn(this);
+		}, request);
+		return request;
+	}
+	
+	this.hasTag = function(tag) {
+		return (this.tags.indexOf(tag) > -1);
+	}
+	
+}
+
+exports.addTagProposal = function(tag) {
+	
+	this.title = "Add tag "+tag+".";
+	
+	this.apply = function(request) {
+		request['tags'].push(tag);		
+	}
+}
