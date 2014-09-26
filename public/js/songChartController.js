@@ -39,19 +39,6 @@ function SongChartController(
 		return scoreObject.year + '-' + ("00"+scoreObject.month).substr(-2,2);
 	}
 		
-/*TODO Re-implement artists		
-		angular.forEach($scope.displayArray, function(scoreObject,index) {
-			songService.getSong('s:'+scoreObject.songId)
-				.then(function(pSong) { scoreObject.song = pSong; })
-				.then(function() {
-					artistService.getArtist(scoreObject.song.artistSlug)
-						.then(function(pArtist) {
-							scoreObject.artist = pArtist;
-						});
-				});
-		});
-*/
-	
 	$scope.monthMode = function(y,m)  {
 		getData($scope.dateString({'year':y,'month':m}));
 		$scope.showRank = true;
@@ -65,6 +52,12 @@ function SongChartController(
 			.then(function(result) {
 				console.log(result);
 				$scope.displayArray = $filter('orderBy')(result.data, ['-score']);
+				angular.forEach($scope.displayArray, function(scoreObject,index) {
+					artistService.getArtist(scoreObject.artist)
+						.then(function(pArtist) {
+							scoreObject.artist = pArtist;
+						});
+				});
 			})
     };
 	

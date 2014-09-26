@@ -78,7 +78,21 @@ app.get('/scores/:year', function(request,response) {
 	).done();
 });
 
+function getPage(fullname) {
+	parameters = {
+		'site': Wikidot.site,
+		'page': fullname
+	};
+	return Q.nfcall(Wikidot.call, 'pages.get_one', parameters);
+}
 
+app.get('/page/:fullname', function(request,response) {
+
+    getPage(request.params.fullname)
+    .then(
+		function(returnValue) { response.json(returnValue); }
+	).done();
+});
 
 
 // There are many useful environment variables available in process.env.
