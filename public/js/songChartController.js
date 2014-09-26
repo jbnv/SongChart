@@ -3,14 +3,22 @@ function SongChartController(
 	artistService
 ) {
 	artistService.$http = $http;
+	$scope.identity = angular.identity;
 
-	var months = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ]
+	$scope.months = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
 	
 	$scope.init = function() {
+		$scope.filterDecadeValue = 0;
+		$scope.filterDecadeDisplay = "Decade";
 		$scope.filterYearValue = 0;
-		$scope.filterYearDisplay = "Set Year";
+		$scope.filterYearDisplay = "Year";
 		$scope.filterMonthValue = 0;
-		$scope.filterMonthDisplay = "Set Month";
+		$scope.filterMonthDisplay = "Month";
+	}
+
+	$scope.setFilterDecade = function(d) {
+		$scope.filterDecadeValue = d;
+		$scope.filterDecadeDisplay = ''+d+'s';
 	}
 	
 	$scope.setFilterYear = function(y) {
@@ -23,7 +31,7 @@ function SongChartController(
 
 	$scope.setFilterMonth = function(m) {
 		$scope.filterMonthValue = m;
-		$scope.filterMonthDisplay = months[m-1];
+		$scope.filterMonthDisplay = $scope.months[m-1];
 		$scope.monthMode($scope.filterYearValue,$scope.filterMonthValue);
 	}
 	
