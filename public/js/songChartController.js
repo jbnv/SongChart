@@ -1,8 +1,6 @@
 function SongChartController(
-	$scope,$filter,$http,
-	artistService
+	$scope,$filter,$http
 ) {
-	artistService.$http = $http;
 	$scope.identity = angular.identity;
 
 	$scope.months = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
@@ -26,38 +24,50 @@ function SongChartController(
 		$scope.filterYearDisplay = y;
 		$scope.filterMonthValue = 0;
 		$scope.filterMonthDisplay = '(Select Month)';
-		$scope.yearMode($scope.filterYearValue);
+		$scope.getData($scope.filterYearValue);
 	}
 
 	$scope.setFilterMonth = function(m) {
 		$scope.filterMonthValue = m;
 		$scope.filterMonthDisplay = $scope.months[m-1];
-		$scope.monthMode($scope.filterYearValue,$scope.filterMonthValue);
+		$scope.getData($scope.filterYearValue,$scope.filterMonthValue);
 	}
 	
 	$scope.dateString = function(scoreObject) {
 		return scoreObject.year + '-' + ("00"+scoreObject.month).substr(-2,2);
 	}
-		
-	$scope.monthMode = function(y,m)  {
-		getData($scope.dateString({'year':y,'month':m}));
+	
+	var _artists = {};
+	
+	$scope.getArtist = function(id) {
+		if (_artists[id]) {
+			return _artists[id];
+		} else {
+			// Get it from the server and store it in the cache.
+			return $http.get('page/'+id).then(function(result) {
+				data = result.data[0];
+				if (!data) {
+					name = 'data NULL';
+				} else if (!data.title) {
+					name = 'data.title NULL';
+				} else {
+					name = data.title;
+				}
+				returnObject = {
+					'name' : name
+				}
+				_artists[id] = returnObject;
+				return returnObject;
+			});
+		} //if (_artists[id])
+	}
+			
+	$scope.getData = function(y,m)  {
 		$scope.showRank = true;
 		$scope.showDate = false;
-    };
-
-	$scope.yearMode = function(y)  {
-		$scope.showRank = true;
-		$scope.showDate = false;
-		$http.get('scores/'+y)
+		$http.get('scores/'+y+(m?'/'+m:''))
 			.then(function(result) {
-				console.log(result);
 				$scope.displayArray = $filter('orderBy')(result.data, ['-score']);
-				angular.forEach($scope.displayArray, function(scoreObject,index) {
-					artistService.getArtist(scoreObject.artist)
-						.then(function(pArtist) {
-							scoreObject.artist = pArtist;
-						});
-				});
 			})
     };
 	
