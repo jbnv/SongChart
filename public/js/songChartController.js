@@ -74,5 +74,9 @@ function SongChartController(
 			})
     };
 	
+	$scope.reload = function() {
+		$scope.getData($scope.filterYearValue,$scope.filterMonthValue);
+	}
+	
 	$scope.init();
 }
