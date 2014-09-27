@@ -11,20 +11,27 @@ app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views'); //optional since express defaults to CWD/views
 app.engine('html', require('ejs').renderFile);
 
+// Scoring criteria:
+// Debut rank: Higher rank (lower number) is better.
+// Peak rank: Higher rank (lower number) is better.
+// Duration: More is better.
+
 function rankToScore(rank) {
-	return 105-5*rank;
+	value = 30-10*Math.log(rank);
+	if (value < 0) value = 0;
+	return value;
 }
 
 function annualScore(debut,peak,months) {
-	return Math.floor(rankToScore(debut)+months*rankToScore(peak));
-	 value;
+	//return Math.floor(rankToScore(debut)+months*rankToScore(peak));
+	return rankToScore(debut)+rankToScore(peak/months);
 }
 
 function monthlyScore(debut,peak,totalMonths,monthIndex) {
 	value = 0;
 	if (totalMonths <= 0) return 0;
 	if (totalMonths == 1) {
-		value = Math.floor((1/2)*rankToScore(peak)+(1/4)*rankToScore(debut));
+		value = Math.floor(rankToScore(peak));
 	} else {
 		if (monthIndex == 0) 
 			value = Math.floor((1/2)*rankToScore(peak)+(1/2)*rankToScore(debut));
@@ -83,7 +90,7 @@ app.get('/scores/:year', function(request,response) {
 			for (var index in allResults) {
 				song = new Wikidot.WikidotPage();
 				song.injectContent(allResults[index], Wikidot.ContentTypes.DataForm);
-				song.score = annualScore(parseInt(song.debutrank),parseInt(song.peakrank),parseInt(song.months));
+				song.score = annualScore(parseFloat(song.debutrank),parseFloat(song.peakrank),parseInt(song.months));
 				//TODO Get artist.
 				returnValue.push(song);
 			}
@@ -115,7 +122,7 @@ app.get('/scores/:year/:month', function(request,response) {
 					}
 					if (month0 <= month) {
 						song.score = monthlyScore(
-							parseInt(song.debutrank),parseInt(song.peakrank),
+							parseFloat(song.debutrank),parseFloat(song.peakrank),
 							parseInt(song.months), month-month0
 						);
 					}

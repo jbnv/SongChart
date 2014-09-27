@@ -2,13 +2,14 @@ function SongChartController(
 	$scope,$filter,$http
 ) {
 	$scope.identity = angular.identity;
+	$scope.floor = Math.floor;
 
 	$scope.months = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
 		
 	$scope.init = function() {
 		$scope.setFilter();
 	}
-
+	
 	$scope.setFilter = function(p) {
 		if (!p) {
 			$scope.filter = { 
