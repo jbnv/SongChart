@@ -4,33 +4,28 @@ function SongChartController(
 	$scope.identity = angular.identity;
 
 	$scope.months = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
-	
+		
 	$scope.init = function() {
-		$scope.filterDecadeValue = 0;
-		$scope.filterDecadeDisplay = "Decade";
-		$scope.filterYearValue = 0;
-		$scope.filterYearDisplay = "Year";
-		$scope.filterMonthValue = 0;
-		$scope.filterMonthDisplay = "Month";
+		$scope.filter = { decade: 0, year: 0, month: 0 };
+		$scope.display = { decade: "Decade", year: "Year", month: "Month" };
 	}
 
 	$scope.setFilterDecade = function(d) {
-		$scope.filterDecadeValue = d;
-		$scope.filterDecadeDisplay = ''+d+'s';
+		$scope.filter.decade = d;
+		$scope.display.decade = ''+d+'s';
 	}
 	
 	$scope.setFilterYear = function(y) {
-		$scope.filterYearValue = y;
-		$scope.filterYearDisplay = y;
-		$scope.filterMonthValue = 0;
-		$scope.filterMonthDisplay = '(Select Month)';
-		$scope.getData($scope.filterYearValue);
+		$scope.filter.year = y;
+		$scope.display.year = y;
+		$scope.display.month = '(Select Month)';
+		getData();
 	}
 
 	$scope.setFilterMonth = function(m) {
-		$scope.filterMonthValue = m;
-		$scope.filterMonthDisplay = $scope.months[m-1];
-		$scope.getData($scope.filterYearValue,$scope.filterMonthValue);
+		$scope.filter.month = m;
+		$scope.display.month = $scope.months[m-1];
+		getData();
 	}
 	
 
@@ -39,44 +34,40 @@ function SongChartController(
 		return scoreObject.year + '-' + ("00"+scoreObject.month).substr(-2,2);
 	}
 	
-	var _artists = {};
-	
-	$scope.getArtist = function(id) {
-		if (_artists[id]) {
-			return _artists[id];
-		} else {
-			// Get it from the server and store it in the cache.
-			return $http.get('page/'+id).then(function(result) {
-				data = result.data[0];
-				if (!data) {
-					name = 'data NULL';
-				} else if (!data.title) {
-					name = 'data.title NULL';
-				} else {
-					name = data.title;
-				}
-				returnObject = {
-					'name' : name
-				}
-				_artists[id] = returnObject;
-				return returnObject;
-			});
-		} //if (_artists[id])
+	function getArtist(songObject) {
+		config = { 
+			cache: true, // use default cache
+		}; 
+		$http.get('page/'+songObject.artist,config).then(function(result) {
+			data = result.data[0];
+			if (!data) {
+				name = 'data NULL';
+			} else if (!data.title) {
+				name = 'data.title NULL';
+			} else {
+				name = data.title;
+			}
+			songObject.artistObject = {
+				'name' : name
+			};
+		});
 	}
 			
-	$scope.getData = function(y,m)  {
+	function getData()  {
+		y = $scope.filter.year;
+		m = $scope.filter.month;
 		$scope.showRank = true;
 		$scope.showDate = false;
 		$scope.showIsDebut = m;
 		$http.get('scores/'+y+(m?'/'+m:''))
 			.then(function(result) {
-				$scope.displayArray = $filter('orderBy')(result.data, ['-score']);
+				list = $filter('orderBy')(result.data, ['-score']);
+				angular.forEach(list, getArtist);
+				$scope.displayArray = list;
 			})
     };
 	
-	$scope.reload = function() {
-		$scope.getData($scope.filterYearValue,$scope.filterMonthValue);
-	}
+	$scope.reload = getData;
 	
 	$scope.init();
 }
