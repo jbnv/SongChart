@@ -6,29 +6,40 @@ function SongChartController(
 	$scope.months = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
 		
 	$scope.init = function() {
-		$scope.filter = { decade: 0, year: 0, month: 0 };
-		$scope.display = { decade: "Decade", year: "Year", month: "Month" };
+		$scope.setFilter();
 	}
 
-	$scope.setFilterDecade = function(d) {
-		$scope.filter.decade = d;
-		$scope.display.decade = ''+d+'s';
+	$scope.setFilter = function(p) {
+		if (!p) {
+			$scope.filter = { 
+				decade: 0, year: 0, month: 0 
+			};
+			$scope.display = { 
+				decade: "Decade", year: "Year", month: "Month" 
+			};
+		} else //TODO p.artist
+		if (p.decade) {
+			$scope.filter = { 
+				decade: p.decade, year: 0, month: 0 
+			};
+			$scope.display = { 
+				decade: (p.decade ? ''+p.decade+'s' : "Decade"), year: "Year", month: "Month" 
+			};
+			//TODO getData() for decade;
+			$scope.displayArray = [];
+		} else if (p.year) {
+			p.decade = p.year - p.year%10;
+			$scope.filter = { 
+				decade: p.decade, year: p.year, month: p.month
+			};
+			$scope.display = { 
+				decade: ''+p.decade+'s', year: ''+p.year, month: p.month ? $scope.months[p.month-1] : 'Select Month' 
+			};
+			getData();
+		} else {
+			$scope.displayArray = [];
+		}
 	}
-	
-	$scope.setFilterYear = function(y) {
-		$scope.filter.year = y;
-		$scope.display.year = y;
-		$scope.display.month = '(Select Month)';
-		getData();
-	}
-
-	$scope.setFilterMonth = function(m) {
-		$scope.filter.month = m;
-		$scope.display.month = $scope.months[m-1];
-		getData();
-	}
-	
-
 	
 	$scope.dateString = function(scoreObject) {
 		return scoreObject.year + '-' + ("00"+scoreObject.month).substr(-2,2);
