@@ -2,7 +2,8 @@ function SongChartController(
 	$scope,$filter,$http
 ) {
 	$scope.identity = angular.identity;
-	$scope.floor = Math.floor;
+	$scope.formatScore = function(score) { return Math.floor(score*1000)/1000; };
+	$scope.formatProjectedRank = function(score) { return Math.floor(score*10)/10; };
 
 	$scope.months = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
 		
@@ -71,9 +72,12 @@ function SongChartController(
 		$scope.showRank = true;
 		$scope.showDate = false;
 		$scope.showIsDebut = m;
+		$scope.showScore = !m;
+		$scope.showProjectedRank = m;
+		sortField = m ? 'projectedRank' : 'score';
 		$http.get('scores/'+y+(m?'/'+m:''))
 			.then(function(result) {
-				list = $filter('orderBy')(result.data, ['-score']);
+				list = $filter('orderBy')(result.data, [sortField]);
 				angular.forEach(list, getArtist);
 				$scope.displayArray = list;
 			})

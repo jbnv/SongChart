@@ -62,7 +62,8 @@
 			<th>Artist</th>
 			<th data-ng-show="showDate">Date</th>
 			<th data-ng-show="showIsDebut"></th>
-			<th>Score</th>
+			<th data-ng-show="showScore">Score</th>
+			<th data-ng-show="showProjectedRank" tooltip="Projected Rank">PR</th>
 			<th tooltip-placement="bottom" tooltip="Debut Rank">D</th>
 			<th tooltip-placement="bottom" tooltip="Peak Rank">P</th>
 			<th tooltip-placement="bottom" tooltip="Duration (Months)">M</th>
@@ -73,9 +74,10 @@
 			<td data-ng-show="showRank">{{ $index+1 }}</td>
 			<td><a href="http://playlists.wikidot.com/{{ song.fullname }}">{{song.title}}</a></td>
 			<td><a href="http://playlists.wikidot.com/{{ song.artist }}">{{ song.artistObject.name }}</a></td>
-			<th data-ng-show="showIsDebut"><i class="fa fa-star" data-ng-show="song.isDebut"></i></th>
 			<td data-ng-show="showDate">{{dateString(song)}}</td>
-			<td>{{floor(song.score)}}</td>
+			<th data-ng-show="showIsDebut"><i class="fa fa-star" data-ng-show="song.isDebut"></i></th>
+			<td data-ng-show="showScore">{{formatScore(song.score)}}</td>
+			<td data-ng-show="showProjectedRank">{{formatProjectedRank(song.projectedRank)}}</td>
 			<td>{{song.debutrank}}</td>
 			<td>{{song.peakrank}}</td>
 			<td>{{song.months}}</td>

@@ -16,32 +16,21 @@ app.engine('html', require('ejs').renderFile);
 // Peak rank: Higher rank (lower number) is better.
 // Duration: More is better.
 
-function rankToScore(rank) {
-	value = 30-10*Math.log(rank);
-	if (value < 0) value = 0;
-	return value;
-}
-
 function annualScore(debut,peak,months) {
 	//return Math.floor(rankToScore(debut)+months*rankToScore(peak));
-	return rankToScore(debut)+rankToScore(peak/months);
+	return Math.log(debut)+Math.log(peak)-Math.log(months);
 }
 
-function monthlyScore(debut,peak,totalMonths,monthIndex) {
-	value = 0;
-	if (totalMonths <= 0) return 0;
-	if (totalMonths == 1) {
-		value = Math.floor(rankToScore(peak));
+// Attempt to project a rank based on the "known" values.
+
+function projectedRank(debut,peak,totalMonths,monthIndex) {
+	if (totalMonths <= 0) return NaN;
+	if (monthIndex == 0) {
+		value = Math.exp(Math.log(debut/totalMonths) + Math.log(peak - peak/totalMonths));
 	} else {
-		if (monthIndex == 0) 
-			value = Math.floor((1/2)*rankToScore(peak)+(1/2)*rankToScore(debut));
-		else {
-			numerator = totalMonths*2-monthIndex*2-1;
-			denominator = totalMonths*2-2;
-			value = Math.floor((numerator/denominator)*rankToScore(peak));
-		}
+		value = peak*Math.pow(20,monthIndex/totalMonths);
 	}
-	return value > 0 ? value : 0;
+	return value;
 }
 				
 // render index page
@@ -113,7 +102,7 @@ app.get('/scores/:year/:month', function(request,response) {
 			for (var index in allResults) {
 				song = new Wikidot.WikidotPage();
 				song.injectContent(allResults[index], Wikidot.ContentTypes.DataForm);
-				song.score = 0;
+				song.projectedRank = 0;
 				//TODO parse song date
 				if (/^calendar:\d\d\d\d-\d\d$/.test(song.date)) {
 					month0 = parseInt(song.date.split('-')[1]);
@@ -121,13 +110,13 @@ app.get('/scores/:year/:month', function(request,response) {
 						song.isDebut = true;
 					}
 					if (month0 <= month) {
-						song.score = monthlyScore(
+						song.projectedRank = projectedRank(
 							parseFloat(song.debutrank),parseFloat(song.peakrank),
 							parseInt(song.months), month-month0
 						);
 					}
 				}
-				if (song.score > 0) {
+				if (song.projectedRank > 0) {
 					//TODO Get artist.
 					returnValue.push(song);
 				}
