@@ -29,7 +29,26 @@ Wikidot.site = 'playlists';
 
 var deferred = Q.defer();
 
-//TODO app.get('/scores/decade/:decade', function(request,response) {
+// Utility functions.
+
+// Convert calendar slug to date value.
+// 1950-01 = 0
+function yearMonthToInteger(y,m) {
+	return (parseInt(y)-1950)*12+(m?parseInt(m):0);
+}
+
+function calendarSlugToDate(slug) {
+	if (/^calendar:\d\d\d\ds$/.test(slug)) {
+		decade = slug.match(/\d\d\d\d/)[0];
+		return { 'type':'d', 'value': yearMonthToInteger(decade) };
+	} else if (/^calendar:\d\d\d\d$/.test(slug)) {
+		year = slug.match(/\d\d\d\d/)[0];
+		return { 'type':'y', 'value': yearMonthToInteger(year) };
+	} else if (/^calendar:\d\d\d\d-\d\d$/.test(slug)) {
+		numbers = slug.match(/\d+/);
+		return { 'type':'m', 'value': yearMonthToInteger(numbers[0],numbers[1]) };
+}
+
 
 //TODO Cache the songs that have been downloaded.
 //TODO var _years = [];
@@ -50,6 +69,8 @@ function getPages(list) {
 	});
 	return Q.all(promises);
 }
+
+//TODO app.get('/scores/decade/:decade', function(request,response) {
 
 app.get('/scores/:year', function(request,response) {
 
