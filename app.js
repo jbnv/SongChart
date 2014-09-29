@@ -137,7 +137,10 @@ app.get('/scores/duration/:duration', function(request,response) {
 
 //TODO 
 
-//TODO app.get('/scores/decade/:decade', function(request,response) {
+app.get('/scores/decade/:decade', function(request,response) {
+	slug = 'calendar:'+request.params.decade+'s';
+	response.json(_calendar[slug]);
+});
 
 app.get('/scores/:year', function(request,response) {
 	year = request.params.year;
