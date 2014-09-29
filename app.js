@@ -122,6 +122,21 @@ app.get('/scores/artist/:slug', function(request,response) {
 	response.json(_artists[request.params.slug]);
 });
 
+// Rank filter: All songs with projected peak at or above the given rank.
+rankFn = function(someRank) { return function(song) { return parseFloat(song.peakrank) <= parseFloat(someRank); }; };
+app.get('/scores/rank/:rank', function(request,response) {
+	subset = _.filter(_songs, rankFn(request.params.rank));
+	response.json(subset);
+});
+
+// Duration filter: All songs with projected duration at or above a given number.
+durationFn = function(someAmount) { return function(song) { return parseFloat(song.months) >= parseFloat(someAmount); }; };
+app.get('/scores/duration/:duration', function(request,response) {
+	subset = _.filter(_songs, durationFn(request.params.duration));
+	response.json(subset);
+});
+
+//TODO 
 
 //TODO app.get('/scores/decade/:decade', function(request,response) {
 
