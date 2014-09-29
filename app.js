@@ -103,6 +103,7 @@ Q.nfcall(Wikidot.call, 'pages.select', songListP)
 				console.log(song.title,slug,year);
 				pushSong(_calendar, 'calendar:'+decade+'s', song);
 				pushSong(_calendar, 'calendar:'+year, song);
+				
 				pushSong(_calendar, slug, song);
 			}
 		} //for
@@ -116,6 +117,11 @@ Q.nfcall(Wikidot.call, 'pages.select', songListP)
 		);
 */	}
 ).done();
+
+app.get('/scores/artist/:slug', function(request,response) {
+	response.json(_artists[request.params.slug]);
+});
+
 
 //TODO app.get('/scores/decade/:decade', function(request,response) {
 
@@ -139,6 +145,7 @@ function getPages(list) {
 	});
 	return Q.all(promises);
 }
+
 
 app.get('/page/:fullname', function(request,response) {
 
