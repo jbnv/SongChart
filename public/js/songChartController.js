@@ -48,6 +48,7 @@ function SongChartController(
 	}
 	
 	function getArtist(songObject) {
+		if (!songObject) return;
 		config = { 
 			cache: true, // use default cache
 		}; 

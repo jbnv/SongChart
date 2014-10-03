@@ -3,6 +3,8 @@
 var Express = require('express'),
 	Wikidot = require('./public/js/wikidot'),
 	Scoring = require('./public/js/scoring'),
+	Calendar = require('./public/js/calendar'),
+	Timespan = require('./public/js/timespan'),
 	Q = require('q'),
 	_ = require('underscore');
 
@@ -32,24 +34,6 @@ var deferred = Q.defer();
 
 // Utility functions.
 
-// Convert calendar slug to date value.
-// 1950-01 = 0
-function yearMonthToInteger(y,m) {
-	return (parseInt(y)-1950)*12+(m?parseInt(m):0);
-}
-
-function calendarSlugToDate(slug) {
-	if (/^calendar:\d\d\d\ds$/.test(slug)) {
-		decade = slug.match(/\d\d\d\d/)[0];
-		return { 'type':'d', 'value': yearMonthToInteger(decade) };
-	} else if (/^calendar:\d\d\d\d$/.test(slug)) {
-		year = slug.match(/\d\d\d\d/)[0];
-		return { 'type':'y', 'value': yearMonthToInteger(year) };
-	} else if (/^calendar:\d\d\d\d-\d\d$/.test(slug)) {
-		numbers = slug.match(/\d+/);
-		return { 'type':'m', 'value': yearMonthToInteger(numbers[0],numbers[1]) };
-	}
-}
 
 function pushSong(pArray,pSlug,pSong) {
 	if (pArray[pSlug]) {
@@ -61,13 +45,14 @@ function pushSong(pArray,pSlug,pSong) {
 
 // Cache the songs that have been downloaded.
 var _songs = {};
-var _calendar = {};
+var _calendar = new Calendar();
 var _artists = {};
 
 songListP = { 'site': Wikidot.site, 'categories': ['s'] };
 Q.nfcall(Wikidot.call, 'pages.select', songListP)
 .then(
 	function(list) {
+		console.log("Getting pages.");
 		var promises = list.map(function(slug) {
 			return Q.nfcall(Wikidot.getPage, slug);
 		});
@@ -75,36 +60,41 @@ Q.nfcall(Wikidot.call, 'pages.select', songListP)
 	}
 ).then(
 	function(allResults) {
+		console.log("Transforming song data.");
 		returnValue = [];
 		for (var index in allResults) {
 			song = new Wikidot.WikidotPage();
 			song.injectContent(allResults[index], Wikidot.ContentTypes.DataForm);
-			song.score = Scoring.annualScore(parseFloat(song.debutrank),parseFloat(song.peakrank),parseInt(song.months));
+
+			debutRank = parseFloat(song.debutrank);
+			peakRank  = parseFloat(song.peakrank);
+			duration  = parseInt(song.months);
+			
+			song.score = Scoring.annualScore(debutRank,peakRank,duration);
 			
 			_songs[song.fullname] = song;
 			pushSong(_artists,song.artist,song);
 			
-			//TODO Determine ranks for each month.
-
 			// File the song in the appropriate calendar entries.
 			slug = song.date;
-			if (/^calendar:\d\d\d\ds$/.test(slug)) {
-				pushSong(_calendar, slug, song);
-			} else if (/^calendar:\d\d\d\d$/.test(slug)) {
-				year = parseInt(slug.match(/\d\d\d\d/)[0]);
-				decade = year - year%10;
-				pushSong(_calendar, 'calendar:'+decade+'s', song);
-				pushSong(_calendar, slug, song);
-			} else if (/^calendar:\d\d\d\d-\d\d$/.test(slug)) {
-				//TODO Create a new entry for each rank.
-				year = parseInt(slug.match(/\d\d\d\d/)[0]);
-				decade = year - year%10;
-				console.log(song.title,slug,year);
-				pushSong(_calendar, 'calendar:'+decade+'s', song);
-				pushSong(_calendar, 'calendar:'+year, song);
-				
-				pushSong(_calendar, slug, song);
-			}
+			timespan = new Timespan(slug);
+			decade = timespan.decade;
+			year   = timespan.year;
+			month0 = timespan.month;
+			if (decade) {
+				_calendar.put(song).byDecade(decade);
+			} else if (year) {
+				_calendar.put(song).byYear(year);
+				if (year && month0) {
+					// In this case, the song will be filed multiple times --
+					// once for each month during its duration.
+					for (monthIndex = 0; monthIndex < duration; monthIndex++) {
+						thisSong = _.clone(song);
+						thisSong.projectedRank = Scoring.projectedRank(debutRank,peakRank,duration,monthIndex);
+						_calendar.put(thisSong).byMonth(year,month0+monthIndex);
+					}
+				} 
+			} //if
 		} //for
 	} //function
 ).then(
@@ -135,25 +125,17 @@ app.get('/scores/duration/:duration', function(request,response) {
 	response.json(subset);
 });
 
-//TODO 
 
 app.get('/scores/decade/:decade', function(request,response) {
-	slug = 'calendar:'+request.params.decade+'s';
-	response.json(_calendar[slug]);
+	response.json(_calendar.get().byDecade(request.params.decade));
 });
 
 app.get('/scores/:year', function(request,response) {
-	year = request.params.year;
-	yearSlug = 'calendar:'+year;
-	response.json(_calendar[yearSlug]);
+	response.json(_calendar.get().byYear(request.params.year));
 });
 
 app.get('/scores/:year/:month', function(request,response) {
-	year = request.params.year;
-	month = request.params.month;
-	slug = 'calendar:'+year+('0'+month).substr(-2,2);
-	console.log(slug,"count:",_calendar[slug].length);
-	response.json(_calendar[slug]);
+	response.json(_calendar.get().byMonth(request.params.year,request.params.month));
 });
 
 function getPages(list) {
