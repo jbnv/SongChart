@@ -90,6 +90,7 @@ Q.nfcall(Wikidot.call, 'pages.select', songListP)
 					// once for each month during its duration.
 					for (monthIndex = 0; monthIndex < duration; monthIndex++) {
 						thisSong = _.clone(song);
+						if (monthIndex == 0) thisSong.isDebut = true;
 						thisSong.projectedRank = Scoring.projectedRank(debutRank,peakRank,duration,monthIndex);
 						_calendar.put(thisSong).byMonth(year,month0+monthIndex);
 					}
