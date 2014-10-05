@@ -48,11 +48,12 @@ var _songs = {};
 var _calendar = new Calendar();
 var _artists = {};
 
+console.log("Spawning promise to get list of song pages.");
 songListP = { 'site': Wikidot.site, 'categories': ['s'] };
 Q.nfcall(Wikidot.call, 'pages.select', songListP)
 .then(
 	function(list) {
-		console.log("Getting pages.");
+		console.log("Received list of song pages; now getting pages.");
 		var promises = list.map(function(slug) {
 			return Q.nfcall(Wikidot.getPage, slug);
 		});
@@ -60,7 +61,7 @@ Q.nfcall(Wikidot.call, 'pages.select', songListP)
 	}
 ).then(
 	function(allResults) {
-		console.log("Transforming song data.");
+		console.log("Received song pages; now transforming song data.");
 		returnValue = [];
 		for (var index in allResults) {
 			song = new Wikidot.WikidotPage();
@@ -100,12 +101,13 @@ Q.nfcall(Wikidot.call, 'pages.select', songListP)
 	} //function
 ).then(
 	function() {
-/*		console.log('Counts:',
+		console.log(
+			'Transform of song data complete. Counts:',
 			"_songs",Object.keys(_songs).length,
 			"_calendar",Object.keys(_calendar).length,
 			"_artists",Object.keys(_artists).length
 		);
-*/	}
+	}
 ).done();
 
 app.get('/scores/artist/:slug', function(request,response) {
@@ -172,4 +174,4 @@ var host = (process.env.VCAP_APP_HOST || 'localhost');
 var port = (process.env.VCAP_APP_PORT || 3000);
 // Start server
 app.listen(port, host);
-console.log('App started on port ' + port);
+console.log('Application setup complete.');
