@@ -141,6 +141,22 @@ app.get('/scores/:year/:month', function(request,response) {
 	response.json(_calendar.get().byMonth(request.params.year,request.params.month));
 });
 
+//TODO /artists/top/:count (also apply this pattern to song scores)
+app.get('/artists', function(request,response) {
+	console.log('/artists');
+	returnArray = _.map(
+		_artists,
+		function (songArray, artistSlug) {
+			return {
+				slug: artistSlug,
+				songCount: songArray.length,
+				score: Scoring.songCollectionScore(songArray)
+			};
+		}
+	); // _.map
+	response.json(returnArray);
+});
+
 function getPages(list) {
 	var promises = list.map(function(slug) {
 		return Q.nfcall(Wikidot.getPage, slug);
