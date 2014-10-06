@@ -67,6 +67,8 @@
 			<th tooltip-placement="bottom" tooltip="Debut Rank">D</th>
 			<th tooltip-placement="bottom" tooltip="Peak Rank">P</th>
 			<th tooltip-placement="bottom" tooltip="Duration (Months)">M</th>
+			<th tooltip-placement="bottom" tooltip="Ascent Coefficient">A</th>
+			<th tooltip-placement="bottom" tooltip="Descent Coefficient">B</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -78,9 +80,11 @@
 			<th data-ng-show="showIsDebut"><i class="fa fa-star" data-ng-show="song.isDebut"></i></th>
 			<td data-ng-show="showScore">{{formatScore(song.score)}}</td>
 			<td data-ng-show="showProjectedRank">{{formatProjectedRank(song.projectedRank)}}</td>
-			<td>{{song.debutrank}}</td>
-			<td>{{song.peakrank}}</td>
-			<td>{{song.months}}</td>
+			<td>{{song.debutRank}}</td>
+			<td>{{song.peakRank}}</td>
+			<td><span data-ng-show="showProjectedRank">{{song.monthIndex}} / </span>{{song.duration}}</td>
+			<td>{{format2dp(song.ascentCoefficient)}}</td>
+			<td>{{format2dp(song.descentCoefficient)}}</td>
 		</tr>
 	</tbody>
 </table>

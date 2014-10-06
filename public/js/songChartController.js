@@ -4,6 +4,7 @@ function SongChartController(
 	$scope.identity = angular.identity;
 	$scope.formatScore = function(score) { return Math.floor(score*1000)/1000; };
 	$scope.formatProjectedRank = function(score) { return Math.floor(score*10)/10; };
+	$scope.format2dp = function(score) { return Math.floor(score*100)/100; };
 
 	$scope.months = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
 		
