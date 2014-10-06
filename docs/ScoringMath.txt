@@ -1,0 +1,15 @@
+D = Debut rank.
+P = Peak rank.
+H = Time at which rank = peak. 
+K = Scaling constant.
+
+1. Rank function is of the form r = Ae^(-Km) + Be^(Km).
+
+2. r(0) = D, r(H) = P. Hence A = (P-DE)/(E^-E), B = (P-DE^)/(E-E^) where E = e^KH. 
+
+3. Peak r'(H) = 0 = -KAe^(-KH) + BKe^(KH) = -KAE^ + BKE. 
+   Hence KAE^ = BKE, hence KH = 1/2 ln A/B, hence H = 1/2K ln A/B.
+   
+4. AE^ = BE hence (E^)(P-DE)/(E^-E) = E(P-DE^)/(E-E^) hence -P+DE = PE^2 - DE hence PE2 - 2DE + P = 0.
+
+5. E = (2D +- sqrt(4D^2-4P^2)) / 2P = D +- sqrt(D2-P2), hence H = 1/K ln ((D +- sqrt(D2-P2))/P).

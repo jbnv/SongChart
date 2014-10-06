@@ -66,12 +66,7 @@ Q.nfcall(Wikidot.call, 'pages.select', songListP)
 		for (var index in allResults) {
 			song = new Wikidot.WikidotPage();
 			song.injectContent(allResults[index], Wikidot.ContentTypes.DataForm);
-
-			debutRank = parseFloat(song.debutrank);
-			peakRank  = parseFloat(song.peakrank);
-			duration  = parseInt(song.months);
-			
-			song.score = Scoring.annualScore(debutRank,peakRank,duration);
+			Scoring.score(song);
 			
 			_songs[song.fullname] = song;
 			pushSong(_artists,song.artist,song);
@@ -89,10 +84,11 @@ Q.nfcall(Wikidot.call, 'pages.select', songListP)
 				if (year && month0) {
 					// In this case, the song will be filed multiple times --
 					// once for each month during its duration.
-					for (monthIndex = 0; monthIndex < duration; monthIndex++) {
+					for (monthIndex = 0; monthIndex < song.duration; monthIndex++) {
 						thisSong = _.clone(song);
 						if (monthIndex == 0) thisSong.isDebut = true;
-						thisSong.projectedRank = Scoring.projectedRank(debutRank,peakRank,duration,monthIndex);
+						thisSong.monthIndex = monthIndex;
+						thisSong.projectedRank = thisSong.rank(monthIndex);
 						_calendar.put(thisSong).byMonth(year,month0+monthIndex);
 					}
 				} 
