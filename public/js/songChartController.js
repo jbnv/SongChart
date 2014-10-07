@@ -1,5 +1,7 @@
+//TODO Detect when the server side hasn't finished loading all songs. Display an appropriate message.
+
 function SongChartController(
-	$scope,$filter,$http
+	$scope,$filter,$http,$modal
 ) {
 	$scope.identity = angular.identity;
 	$scope.formatScore = function(score) { return Math.floor(score*1000)/1000; };
@@ -87,5 +89,18 @@ function SongChartController(
 	
 	$scope.reload = getData;
 	
+	$scope.openSongModal = function (song) {
+		var modalInstance = $modal.open({
+			templateUrl: 'songModal.html',
+			controller: 'songModalController',
+			size: 'sm',
+			resolve: {
+				song: function () {
+					return song;
+				}
+			}
+		});
+	};
+
 	$scope.init();
 }

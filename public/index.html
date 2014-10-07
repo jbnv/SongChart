@@ -7,10 +7,13 @@
 <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
 <!-- Application -->
 <script src="/js/songChartController.js" charset="utf-8"></script>
+<script src="/js/songModalController.js" charset="utf-8"></script>
 <script>
 	var songChartApp = angular.module('songChartApp', ['ui.bootstrap']);
 	songChartApp.controller('songChartController', 
-		['$scope','$filter','$http',SongChartController]);
+		['$scope','$filter','$http','$modal',SongChartController]);
+	songChartApp.controller('songModalController', 
+		['$scope','$modalInstance',SongModalController]);
 </script>
 </head>
 
@@ -74,7 +77,7 @@
 	<tbody>
 		<tr data-ng-repeat="song in displayArray">
 			<td data-ng-show="showRank">{{ $index+1 }}</td>
-			<td><a href="http://playlists.wikidot.com/{{ song.fullname }}">{{song.title}}</a></td>
+			<td><a data-ng-click="openSongModal(song)">{{song.title}}</a></td>
 			<td><a href="http://playlists.wikidot.com/{{ song.artist }}">{{ song.artistObject.name }}</a></td>
 			<td data-ng-show="showDate">{{dateString(song)}}</td>
 			<th data-ng-show="showIsDebut"><i class="fa fa-star" data-ng-show="song.isDebut"></i></th>
@@ -88,6 +91,33 @@
 		</tr>
 	</tbody>
 </table>
+
+<script type="text/ng-template" id="songModal.html">
+	<div class="modal-header">
+		<h3 class="modal-title">
+			<a href="http://playlists.wikidot.com/{{ song.fullname }}">{{song.title}}</a><br>
+			<small><a href="http://playlists.wikidot.com/{{ song.artist }}">{{ song.artistObject.name }}</a></small>
+		</h3>
+	</div>
+	<div class="modal-body">
+		<table>
+			<tr><td>Debut Date</td><td><a href="http://playlists.wikidot.com/{{ song.date }}">{{ song.date }}</a></td></tr>
+			<tr><td>Total Score</td><td>{{ song.score | number:2 }}</td></tr>
+			<tr><td>Debut Rank</td><td>{{ song.debutRank }}</td></tr>
+			<tr><td>Peak Rank</td><td>{{ song.peakRank }}</td></tr>
+			<tr><td>Duration</td><td>{{ song.duration }}</td>
+			<tr><td>Ascent K</td><td>{{ song.ascentCoefficient | number:2 }}</td>
+			<tr><td>Descent K</td><td>{{ song.descentCoefficient | number:2 }}</td>
+		</table>
+		<p><b>Ranks</b></p>
+		<table>
+			<tr data-ng-repeat=""><td>date</td><td>value</td></tr>
+		</table>
+	</div>
+	<div class="modal-footer">
+		<button class="btn btn-primary" ng-click="ok()">Close</button>
+	</div>
+</script>
 
 </body>
 </html>
