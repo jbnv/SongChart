@@ -95,6 +95,10 @@ Q.nfcall(Wikidot.call, 'pages.select', songListP)
 			} //if
 		} //for
 	} //function
+	,
+	function(exception) { //TODO Get whatever data we can and process it.
+		console.log('EXCEPTION while getting pages:',exception);
+	}
 ).then(
 	function() {
 		console.log(
@@ -130,11 +134,27 @@ app.get('/scores/decade/:decade', function(request,response) {
 });
 
 app.get('/scores/:year', function(request,response) {
-	response.json(_calendar.get().byYear(request.params.year));
+	console.log('/scores/:year/',request.params.year);
+	try {
+		stuff = _calendar.get().byYear(request.params.year);
+	}
+	catch (e) {
+		console.log('EXCEPTION',e);
+		stuff = {}; //TODO Make this more robust.
+	}
+	response.json(stuff);
 });
 
 app.get('/scores/:year/:month', function(request,response) {
-	response.json(_calendar.get().byMonth(request.params.year,request.params.month));
+	console.log('/scores/:year/:month',request.params.year,request.params.month);
+	try {
+		stuff = _calendar.get().byMonth(request.params.year,request.params.month);
+	}
+	catch (e) {
+		console.log('EXCEPTION',e);
+		stuff = {}; //TODO Make this more robust.
+	}
+	response.json(stuff);
 });
 
 //TODO /artists/top/:count (also apply this pattern to song scores)
