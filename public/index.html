@@ -59,6 +59,12 @@
 					><a href="#">{{month}}</a></li>
                 </ul>
             </li>
+			<li data-ng-hide="showSpinner">
+				<a tooltip-placement="bottom" tooltip="Songs Loaded">{{ displayArray.length }} <i class="fa fa-music"></i></a>
+			</li>
+			<li data-ng-hide="showSpinner">
+				<a tooltip-placement="bottom" tooltip="Artists Loaded">TODO <i class="fa fa-paint-brush"></i></a>
+			</li>
         </ul>
 		<ul class="nav navbar-nav navbar-right">
 			<li>
