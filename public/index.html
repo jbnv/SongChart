@@ -14,6 +14,14 @@
 		['$scope','$filter','$http','$modal',SongChartController]);
 	songChartApp.controller('songModalController', 
 		['$scope','$modalInstance',SongModalController]);
+	songChartApp.filter('months', function() {
+        return function(song) {
+            var result = [];
+            for (monthIndex = 0; monthIndex < song.duration; monthIndex++)
+                result.push(monthIndex);
+            return result;
+        };
+    });
 </script>
 </head>
 
@@ -111,7 +119,7 @@
 		</table>
 		<p><b>Ranks</b></p>
 		<table>
-			<tr data-ng-repeat=""><td>date</td><td>value</td></tr>
+			<tr data-ng-repeat="monthIndex in song | months"><td>identity</td><td>thisSong.rank(identity)</td></tr>
 		</table>
 	</div>
 	<div class="modal-footer">
