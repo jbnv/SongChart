@@ -133,10 +133,21 @@ app.get('/scores/decade/:decade', function(request,response) {
 	response.json(_calendar.get().byDecade(request.params.decade));
 });
 
+//TODO Add /:top parameter.
+app.get('/scores/decade/:decade', function(request,response) {
+	response.json(_calendar.get().byDecade(request.params.decade));
+});
+
+//TODO Add /:top parameter.
 app.get('/scores/:year', function(request,response) {
 	console.log('/scores/:year/',request.params.year);
 	try {
 		stuff = _calendar.get().byYear(request.params.year);
+		if (stuff) {
+			console.log('stuff count',stuff.length);
+		} else {
+			console.log('Nothing returned!');
+		}
 	}
 	catch (e) {
 		console.log('EXCEPTION',e);
@@ -145,10 +156,16 @@ app.get('/scores/:year', function(request,response) {
 	response.json(stuff);
 });
 
+//TODO Add /:top parameter.
 app.get('/scores/:year/:month', function(request,response) {
 	console.log('/scores/:year/:month',request.params.year,request.params.month);
 	try {
 		stuff = _calendar.get().byMonth(request.params.year,request.params.month);
+		if (stuff) {
+			console.log('stuff count',stuff.length);
+		} else {
+			console.log('Nothing returned!');
+		}
 	}
 	catch (e) {
 		console.log('EXCEPTION',e);
