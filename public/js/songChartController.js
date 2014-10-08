@@ -51,6 +51,7 @@ function SongChartController(
 	}
 	
 	function getArtist(songObject) {
+		$scope.showSpinner = true;
 		if (!songObject) return;
 		config = { 
 			cache: true, // use default cache
@@ -67,10 +68,12 @@ function SongChartController(
 			songObject.artistObject = {
 				'name' : name
 			};
+			$scope.showSpinner = false;
 		});
 	}
 			
 	function getData()  {
+		$scope.showSpinner = true;
 		y = $scope.filter.year;
 		m = $scope.filter.month;
 		$scope.showRank = true;
@@ -84,6 +87,7 @@ function SongChartController(
 				list = $filter('orderBy')(result.data, [sortField]);
 				angular.forEach(list, getArtist);
 				$scope.displayArray = list;
+				$scope.showSpinner = false;
 			})
     };
 	

@@ -31,6 +31,17 @@
 <body data-ng-app="songChartApp" data-ng-controller="songChartController">
 
 <nav role="navigation" class="navbar navbar-default navbar-fixed-top">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+        <button type="button" data-target="#navbarCollapse" data-toggle="collapse" class="navbar-toggle">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+    </div>
+    <!-- Collection of nav links and other content for toggling -->
+    <div id="navbarCollapse" class="collapse navbar-collapse">
         <ul role="navigation" class="nav navbar-nav">
             <li class="dropdown">
                 <a href="#" data-toggle="dropdown" class="dropdown-toggle">{{display.decade}} <b class="caret"></b></a>
@@ -56,11 +67,33 @@
 					><a href="#">{{month}}</a></li>
                 </ul>
             </li>
+			<li data-ng-hide="showSpinner">
+				<a tooltip-placement="bottom" tooltip="Songs Loaded">{{ displayArray.length }} <i class="fa fa-music"></i></a>
+			</li>
+			<li data-ng-hide="showSpinner">
+				<a tooltip-placement="bottom" tooltip="Artists Loaded">TODO <i class="fa fa-paint-brush"></i></a>
+			</li>
         </ul>
-        <ul role="navigation" class="nav navbar-nav navbar-right">			
-			<li><a href="#" data-ng-click="reload();">Reload</a></li>
-			<li><a href="#" data-ng-click="init();">Reset</a></li>
-        </ul>	
+		<ul class="nav navbar-nav navbar-right">
+			<li>
+				<ul class="btn-group">
+					<li 
+						data-ng-click="reload()"
+						class="btn btn-default" 
+						tooltip-placement="bottom" tooltip="Reload content for current query."
+					><i data-ng-hide="showSpinner" class="fa fa-2x fa-refresh"></i>
+					<i data-ng-show="showSpinner" class="fa fa-2x fa-refresh fa-spin"></i>
+					</li>
+					<li 
+						data-ng-click="init()"
+						class="btn btn-default" 
+						tooltip-placement="bottom" tooltip="Reset query."
+					><i class="fa fa-2x fa-undo"></i>
+					</li>
+				</ul>
+			</li>
+		</ul>
+	</div>
 </nav>
 
 <br /><br/ ><br/ ><br/ ><!-- spacer to move table underneath nav bar -->
