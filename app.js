@@ -48,24 +48,16 @@ var _songs = {};
 var _calendar = new Calendar();
 var _artists = {};
 
-console.log("Spawning promise to get list of song pages.");
-songListP = { 'site': Wikidot.site, 'categories': ['s'] };
-Q.nfcall(Wikidot.call, 'pages.select', songListP)
-.then(
-	function(list) {
-		console.log("Received list of song pages; now getting pages.");
-		var promises = list.map(function(slug) {
-			return Q.nfcall(Wikidot.getPage, slug);
-		});
-		return Q.all(promises);
-	}
-).then(
-	function(allResults) {
-		console.log("Received song pages; now transforming song data.");
-		returnValue = [];
-		for (var index in allResults) {
+console.log("Getting list of song pages.");
+Wikidot.listCategory('s',function(error,list) {
+	console.log("Received list of song pages; now getting pages.");
+	for (var index in list) {
+		if (!/^s:\d+$/.test(list[index])) continue;
+		Wikidot.getPage(list[index], function(error,content) {
+			//TODO If (error) do something with it to requeue content.fullname.
+
 			song = new Wikidot.WikidotPage();
-			song.injectContent(allResults[index], Wikidot.ContentTypes.DataForm);
+			song.injectContent(content, Wikidot.ContentTypes.DataForm);
 			Scoring.score(song);
 			
 			_songs[song.fullname] = song;
@@ -93,22 +85,9 @@ Q.nfcall(Wikidot.call, 'pages.select', songListP)
 					}
 				} 
 			} //if
-		} //for
-	} //function
-	,
-	function(exception) { //TODO Get whatever data we can and process it.
-		console.log('EXCEPTION while getting pages:',exception);
-	}
-).then(
-	function() {
-		console.log(
-			'Transform of song data complete. Counts:',
-			"_songs",Object.keys(_songs).length,
-			"_calendar",Object.keys(_calendar).length,
-			"_artists",Object.keys(_artists).length
-		);
-	}
-).done();
+		}); // Wikidot.getPage
+	} // for each in list
+}); // Wikidot.listCategory
 
 app.get('/scores/artist/:slug', function(request,response) {
 	response.json(_artists[request.params.slug]);
@@ -133,10 +112,21 @@ app.get('/scores/decade/:decade', function(request,response) {
 	response.json(_calendar.get().byDecade(request.params.decade));
 });
 
+//TODO Add /:top parameter.
+app.get('/scores/decade/:decade', function(request,response) {
+	response.json(_calendar.get().byDecade(request.params.decade));
+});
+
+//TODO Add /:top parameter.
 app.get('/scores/:year', function(request,response) {
 	console.log('/scores/:year/',request.params.year);
 	try {
 		stuff = _calendar.get().byYear(request.params.year);
+		if (stuff) {
+			console.log('stuff count',stuff.length);
+		} else {
+			console.log('Nothing returned!');
+		}
 	}
 	catch (e) {
 		console.log('EXCEPTION',e);
@@ -145,10 +135,16 @@ app.get('/scores/:year', function(request,response) {
 	response.json(stuff);
 });
 
+//TODO Add /:top parameter.
 app.get('/scores/:year/:month', function(request,response) {
 	console.log('/scores/:year/:month',request.params.year,request.params.month);
 	try {
 		stuff = _calendar.get().byMonth(request.params.year,request.params.month);
+		if (stuff) {
+			console.log('stuff count',stuff.length);
+		} else {
+			console.log('Nothing returned!');
+		}
 	}
 	catch (e) {
 		console.log('EXCEPTION',e);
