@@ -118,13 +118,83 @@
 				</div>
 			</th>
 			<th data-ng-show="showProjectedRank" tooltip="Projected Rank">PR</th>
-			<th tooltip-placement="bottom" tooltip="Debut Rank">D</th>
-			<th tooltip-placement="bottom" tooltip="Peak Rank">P</th>
-			<th tooltip-placement="bottom" tooltip="Duration (Months)">M</th>
-			<th tooltip-placement="bottom" tooltip="Coefficient Constant">K</th>
-			<th tooltip-placement="bottom" tooltip="Ascent Coefficient">A</th>
-			<th tooltip-placement="bottom" tooltip="Descent Coefficient">B</th>
-			<th tooltip-placement="bottom" tooltip="Time to Peak">H</th>
+			<th data-ng-hide="columns.debutRank.hidden">
+				<div class="dropdown">
+					<a href="#" data-toggle="dropdown" class="dropdown-toggle">D</a>
+					<ul class="dropdown-menu">
+						<li><b>Debut Rank (D)</b>
+						<li data-ng-click="setSort('debutRank')"><a href="#"><i class="fa fa-sort-numeric-asc"></i> Order Ascending</a></li>
+						<li data-ng-click="setSort('-debutRank')"><a href="#"><i class="fa fa-sort-numeric-desc"></i> Order Descending</a></li>
+						<li data-ng-click="columns.hide('debutRank')"><a href="#"><i class="fa fa-remove"></i> Remove</a></li>
+					</ul>
+				</div>
+			</th>
+			<th data-ng-hide="columns.peakRank.hidden">
+				<div class="dropdown">
+					<a href="#" data-toggle="dropdown" class="dropdown-toggle">P</a>
+					<ul class="dropdown-menu">
+						<li><b>Peak Rank (P)</b></li>
+						<li data-ng-click="setSort('peakRank')"><a href="#"><i class="fa fa-sort-numeric-asc"></i> Order Ascending</a></li>
+						<li data-ng-click="setSort('-peakRank')"><a href="#"><i class="fa fa-sort-numeric-desc"></i> Order Descending</a></li>
+						<li data-ng-click="columns.hide('peakRank')"><a href="#"><i class="fa fa-remove"></i> Remove</a></li>
+					</ul>
+				</div>
+			</th>
+			<th data-ng-hide="columns.duration.hidden">
+				<div class="dropdown">
+					<a href="#" data-toggle="dropdown" class="dropdown-toggle">M</a>
+					<ul class="dropdown-menu">
+						<li><b>Duration (Months) (M)</b></li>
+						<li data-ng-click="setSort('duration')"><a href="#"><i class="fa fa-sort-numeric-asc"></i> Order Ascending</a></li>
+						<li data-ng-click="setSort('-duration')"><a href="#"><i class="fa fa-sort-numeric-desc"></i> Order Descending</a></li>
+						<li data-ng-click="columns.hide('duration')"><a href="#"><i class="fa fa-remove"></i> Remove</a></li>
+					</ul>
+				</div>
+			</th>
+			<th data-ng-hide="columns.k.hidden">
+				<div class="dropdown">
+					<a href="#" data-toggle="dropdown" class="dropdown-toggle">K</a>
+					<ul class="dropdown-menu">
+						<li><b>Coefficient Constant (K)</b></li>
+						<li data-ng-click="setSort('coefficientConstant')"><a href="#"><i class="fa fa-sort-numeric-asc"></i> Order Ascending</a></li>
+						<li data-ng-click="setSort('-coefficientConstant')"><a href="#"><i class="fa fa-sort-numeric-desc"></i> Order Descending</a></li>
+						<li data-ng-click="columns.hide('k')"><a href="#"><i class="fa fa-remove"></i> Remove</a></li>
+					</ul>
+				</div>
+			</th>
+			<th data-ng-hide="columns.a.hidden">
+				<div class="dropdown">
+					<a href="#" data-toggle="dropdown" class="dropdown-toggle">A</a>
+					<ul class="dropdown-menu">
+						<li><b>Ascent Coefficient</b></li>
+						<li data-ng-click="setSort('ascentCoefficient')"><a href="#"><i class="fa fa-sort-numeric-asc"></i> Order Ascending</a></li>
+						<li data-ng-click="setSort('-ascentCoefficient')"><a href="#"><i class="fa fa-sort-numeric-desc"></i> Order Descending</a></li>
+						<li data-ng-click="columns.hide('a')"><a href="#"><i class="fa fa-remove"></i> Remove</a></li>
+					</ul>
+				</div>
+			</th>
+			<th data-ng-hide="columns.d.hidden">
+				<div class="dropdown">
+					<a href="#" data-toggle="dropdown" class="dropdown-toggle">B</a>
+					<ul class="dropdown-menu">
+						<li><b>Descent Coefficient</b></li>
+						<li data-ng-click="setSort('descentCoefficient')"><a href="#"><i class="fa fa-sort-numeric-asc"></i> Order Ascending</a></li>
+						<li data-ng-click="setSort('-descentCoefficient')"><a href="#"><i class="fa fa-sort-numeric-desc"></i> Order Descending</a></li>
+						<li data-ng-click="columns.hide('d')"><a href="#"><i class="fa fa-remove"></i> Remove</a></li>
+					</ul>
+				</div>
+			</th>
+			<th data-ng-hide="columns.timeToPeak.hidden">
+				<div class="dropdown">
+					<a href="#" data-toggle="dropdown" class="dropdown-toggle">H</a>
+					<ul class="dropdown-menu">
+						<li><b>Time to Peak (H)</b></li>
+						<li data-ng-click="setSort('timeToPeak')"><a href="#"><i class="fa fa-sort-numeric-asc"></i> Order Ascending</a></li>
+						<li data-ng-click="setSort('-timeToPeak')"><a href="#"><i class="fa fa-sort-numeric-desc"></i> Order Descending</a></li>
+						<li data-ng-click="columns.hide('timeToPeak')"><a href="#"><i class="fa fa-remove"></i> Remove</a></li>
+					</ul>
+				</div>
+			</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -136,13 +206,13 @@
 			<th data-ng-show="showIsDebut"><i class="fa fa-star" data-ng-show="song.isDebut"></i></th>
 			<td data-ng-hide="columns.score.hidden">{{ song.score | number:1 }}</td>
 			<td data-ng-show="showProjectedRank">{{formatProjectedRank(song.projectedRank)}}</td>
-			<td>{{song.debutRank}}</td>
-			<td>{{song.peakRank}}</td>
-			<td><span data-ng-show="showProjectedRank">{{song.monthIndex}} / </span>{{song.duration}}</td>
-			<td>{{format2dp(song.coefficientConstant)}}</td>
-			<td>{{format2dp(song.ascentCoefficient)}}</td>
-			<td>{{format2dp(song.descentCoefficient)}}</td>
-			<td>{{format2dp(song.timeToPeak)}}</td>
+			<td data-ng-hide="columns.debutRank.hidden">{{song.debutRank}}</td>
+			<td data-ng-hide="columns.peakRank.hidden">{{song.peakRank}}</td>
+			<td data-ng-hide="columns.duration.hidden"><span data-ng-show="showProjectedRank">{{song.monthIndex}} / </span>{{song.duration}}</td>
+			<td data-ng-hide="columns.k.hidden">{{ song.coefficientConstant | number:2 }}</td>
+			<td data-ng-hide="columns.a.hidden">{{ song.ascentCoefficient | number:2 }}</td>
+			<td data-ng-hide="columns.b.hidden">{{ song.descentCoefficient | number:2 }}</td>
+			<td data-ng-hide="columns.timeToPeak.hidden">{{ song.timeToPeak | number:2 }}</td>
 		</tr>
 	</tbody>
 </table>

@@ -53,6 +53,13 @@ function SongChartController(
 	function columns() {
 	
 		this.score = { 'title': 'Score' };
+		this.debutRank = { 'title': "Debut Rank" };
+		this.peakRank = { 'title': "Peak Rank" };
+		this.duration = { 'title': "Duration (Months)" };
+		this.k = { 'title': "Coefficient Constant" };
+		this.a = { 'title': "Ascent Coefficient" };
+		this.b = { 'title': "Descent Coefficient" };
+		this.timeToPeak = { 'title': "Time to Peak" };
 		
 		this.show = function(slug) {
 			this[slug].hidden = false;
