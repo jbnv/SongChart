@@ -52,6 +52,7 @@ function SongChartController(
 	
 	function columns() {
 	
+		this.rank = { 'title': 'Rank' };
 		this.title = { 'title': 'Title' };
 		this.artist = { 'title': "Artist" };
 		this.score = { 'title': 'Score' };
@@ -114,7 +115,11 @@ function SongChartController(
 		$http.get('scores/'+y+(m?'/'+m:''))
 			.then(function(result) {
 				list = $filter('orderBy')(result.data, [sortField]);
-				angular.forEach(list, getArtist);
+				for (var index in list) {
+					song = list[index];
+					song.rank = parseInt(index)+1;
+					getArtist(song);
+				}
 				$scope.displayArray = list;
 				$scope.showSpinner = false;
 			})

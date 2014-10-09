@@ -102,7 +102,16 @@
 <table class="table table-condensed table-hover" data-ng-show="displayArray.length > 0">
 	<thead>
 		<tr>
-			<th data-ng-show="showRank">Rank</th>
+			<th data-ng-hide="columns.rank.hidden">
+				<div class="dropdown">
+					<a href="#" data-toggle="dropdown" class="dropdown-toggle">Rank</a>
+					<ul class="dropdown-menu">
+						<li data-ng-click="setSort('rank')"><a href="#"><i class="fa fa-sort-numeric-asc"></i> Order Ascending</a></li>
+						<li data-ng-click="setSort('-rank')"><a href="#"><i class="fa fa-sort-numeric-desc"></i> Order Descending</a></li>
+						<li data-ng-click="columns.hide('rank')"><a href="#"><i class="fa fa-remove"></i> Remove</a></li>
+					</ul>
+				</div>
+			</th>
 			<th data-ng-hide="columns.title.hidden">
 				<div class="dropdown">
 					<a href="#" data-toggle="dropdown" class="dropdown-toggle">Title</a>
@@ -217,7 +226,7 @@
 	</thead>
 	<tbody>
 		<tr data-ng-repeat="song in displayArray | orderBy:sortPredicate">
-			<td data-ng-show="showRank">{{ $index+1 }}</td>
+			<td data-ng-hide="columns.rank.hidden">{{ song.rank }}</td>
 			<td data-ng-hide="columns.title.hidden"><a href="#" data-ng-click="openSongModal(song)">{{song.title}}</a></td>
 			<td data-ng-hide="columns.artist.hidden"><a href="http://playlists.wikidot.com/{{ song.artist }}">{{ song.artistObject.name }}</a></td>
 			<td data-ng-show="showDate">{{dateString(song)}}</td>
