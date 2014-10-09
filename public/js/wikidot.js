@@ -81,6 +81,8 @@ exports.WikidotPage = function() {
 
 	this.injectContent = function(oData,contentType) {
 	
+		if (!oData) return;
+	
 		this.fullname = oData.fullname;
 		this.title = oData.title;
 		this.tags = oData.tags;

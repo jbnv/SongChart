@@ -55,10 +55,15 @@ Wikidot.listCategory('s',function(error,list) {
 		if (!/^s:\d+$/.test(list[index])) continue;
 		Wikidot.getPage(list[index], function(error,content) {
 			//TODO If (error) do something with it to requeue content.fullname.
+			if (error) {
+				console.log('Error getting song.', list[index], error);
+				return;
+			}
 
 			song = new Wikidot.WikidotPage();
 			song.injectContent(content, Wikidot.ContentTypes.DataForm);
 			Scoring.score(song);
+			//IDEA Push calculated song data back into Wikidot?
 			
 			_songs[song.fullname] = song;
 			pushSong(_artists,song.artist,song);
@@ -82,6 +87,7 @@ Wikidot.listCategory('s',function(error,list) {
 						thisSong.monthIndex = monthIndex;
 						thisSong.projectedRank = thisSong.rank(monthIndex);
 						_calendar.put(thisSong).byMonth(year,month0+monthIndex);
+						//IDEA Push song ratings back into Wikidot?
 					}
 				} 
 			} //if

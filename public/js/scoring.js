@@ -17,31 +17,44 @@ exports.score = function(song) {
 	
 	if (song.duration > 0) {
 	
-		e = (song.debutRank - Math.sqrt(
+		scaleTime = function(m) {
+			return song.duration / 2;
+		}
+	
+		e = (song.debutRank + Math.sqrt(
 				song.debutRank*song.debutRank - song.peakRank*song.peakRank
 			))/song.peakRank;
+		song.coefficientConstant = e;
+		
 		song.ascentCoefficient
 			= (song.peakRank - song.debutRank*e) / (1/e - e);
 		song.descentCoefficient 
 			= (song.peakRank - song.debutRank/e) / (e - 1/e);
 		
+		song.timeToPeak = Math.log(song.ascentCoefficient/song.descentCoefficient) / (2*scaleTime());
+
 		song.pointRank = function(m) {
 			if (isNaN(this.ascentCoefficient) || isNaN(this.descentCoefficient)) {
 				value = 0;
 			} else {
-				e = Math.exp(m * this.duration / 20); // scale this down if numbers are too wild.
+				e = Math.exp(m*scaleTime()); // scale this down if numbers are too wild.
 				value = this.ascentCoefficient / e + this.descentCoefficient * e;
 			};
 			return value;
 		};
 		
 		song.rank = function(m) {
-			value = (this.pointRank(m) + this.pointRank(m+1)) / 2;
+			value = this.pointRank(m);
+			//value = (this.pointRank(m) + this.pointRank(m+1)) / 2;
 			return value;
 		}
 		
-		// TEMP Calculate total score.
-		song.score = song.peakRank/Math.sqrt(song.duration) + song.debutRank/song.duration;
+		song.pointRanks = [];
+		for (monthIndex = 0; monthIndex < song.duration; monthIndex += 0.5) {
+			song.pointRanks.push({'m':parseFloat(monthIndex), 'rank':song.pointRank(monthIndex)});
+		}
+		
+		song.score = song.peakRank*song.descentCoefficient + song.debutRank*song.ascentCoefficient;
 	}
 	return song;
 }
