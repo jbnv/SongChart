@@ -50,11 +50,21 @@ function SongChartController(
 		$scope.sortPredicate = predicate;
 	}
 	
-	$scope.hiddenColumns = {};
+	function columns() {
 	
-	$scope.removeColumn = function(slug) {
-		$scope.hiddenColumns[slug] = true;
+		this.score = { 'title': 'Score' };
+		
+		this.show = function(slug) {
+			this[slug].hidden = false;
+		}
+
+		this.hide = function(slug) {
+			this[slug].hidden = true;
+		}
+	
 	}
+		
+	$scope.columns = new columns();
 	
 	$scope.dateString = function(scoreObject) {
 		return scoreObject.year + '-' + ("00"+scoreObject.month).substr(-2,2);

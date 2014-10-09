@@ -67,6 +67,15 @@
 			</li>
         </ul>
 		<ul class="nav navbar-nav navbar-right">
+            <li class="dropdown">
+                <a href="#" data-toggle="dropdown" class="dropdown-toggle">Show Column <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li
+						data-ng-repeat="(slug,details) in columns | filter: {hidden:true}"
+						data-ng-click="columns.show(slug)"
+					><a href="#">{{details.title}}</a></li>
+                </ul>
+            </li>
 			<li>
 				<ul class="btn-group">
 					<li 
@@ -98,13 +107,13 @@
 			<th>Artist</th>
 			<th data-ng-show="showDate">Date</th>
 			<th data-ng-show="showIsDebut"></th>
-			<th data-ng-hide="hiddenColumns['score']">
+			<th data-ng-hide="columns.score.hidden">
 				<div class="dropdown">
 					<a href="#" data-toggle="dropdown" class="dropdown-toggle">Score</a>
 					<ul class="dropdown-menu">
 						<li data-ng-click="setSort('score')"><a href="#"><i class="fa fa-sort-numeric-asc"></i> Order Ascending</a></li>
 						<li data-ng-click="setSort('-score')"><a href="#"><i class="fa fa-sort-numeric-desc"></i> Order Descending</a></li>
-						<li data-ng-click="removeColumn('score')"><a href="#"><i class="fa fa-remove"></i> Remove</a></li>
+						<li data-ng-click="columns.hide('score')"><a href="#"><i class="fa fa-remove"></i> Remove</a></li>
 					</ul>
 				</div>
 			</th>
@@ -125,7 +134,7 @@
 			<td><a href="http://playlists.wikidot.com/{{ song.artist }}">{{ song.artistObject.name }}</a></td>
 			<td data-ng-show="showDate">{{dateString(song)}}</td>
 			<th data-ng-show="showIsDebut"><i class="fa fa-star" data-ng-show="song.isDebut"></i></th>
-			<td data-ng-hide="hiddenColumns['score']">{{ song.score | number:1 }}</td>
+			<td data-ng-hide="columns.score.hidden">{{ song.score | number:1 }}</td>
 			<td data-ng-show="showProjectedRank">{{formatProjectedRank(song.projectedRank)}}</td>
 			<td>{{song.debutRank}}</td>
 			<td>{{song.peakRank}}</td>
