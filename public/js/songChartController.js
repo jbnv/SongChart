@@ -45,6 +45,16 @@ function SongChartController(
 			$scope.displayArray = [];
 		}
 	}
+
+	$scope.setSort = function(predicate) {
+		$scope.sortPredicate = predicate;
+	}
+	
+	$scope.hiddenColumns = {};
+	
+	$scope.removeColumn = function(slug) {
+		$scope.hiddenColumns[slug] = true;
+	}
 	
 	$scope.dateString = function(scoreObject) {
 		return scoreObject.year + '-' + ("00"+scoreObject.month).substr(-2,2);

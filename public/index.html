@@ -98,7 +98,16 @@
 			<th>Artist</th>
 			<th data-ng-show="showDate">Date</th>
 			<th data-ng-show="showIsDebut"></th>
-			<th data-ng-show="showScore">Score</th>
+			<th data-ng-hide="hiddenColumns['score']">
+				<div class="dropdown">
+					<a href="#" data-toggle="dropdown" class="dropdown-toggle">Score</a>
+					<ul class="dropdown-menu">
+						<li data-ng-click="setSort('song.score')"><a href="#"><i class="fa fa-sort-numeric-asc"></i> Order Ascending</a></li>
+						<li data-ng-click="setSort('-song.score')"><a href="#"><i class="fa fa-sort-numeric-desc"></i> Order Descending</a></li>
+						<li data-ng-click="removeColumn('score')"><a href="#"><i class="fa fa-remove"></i> Remove</a></li>
+					</ul>
+				</div>
+			</th>
 			<th data-ng-show="showProjectedRank" tooltip="Projected Rank">PR</th>
 			<th tooltip-placement="bottom" tooltip="Debut Rank">D</th>
 			<th tooltip-placement="bottom" tooltip="Peak Rank">P</th>
@@ -110,13 +119,13 @@
 		</tr>
 	</thead>
 	<tbody>
-		<tr data-ng-repeat="song in displayArray">
+		<tr data-ng-repeat="song in displayArray | orderBy:sortPredicate">
 			<td data-ng-show="showRank">{{ $index+1 }}</td>
 			<td><a href="#" data-ng-click="openSongModal(song)">{{song.title}}</a></td>
 			<td><a href="http://playlists.wikidot.com/{{ song.artist }}">{{ song.artistObject.name }}</a></td>
 			<td data-ng-show="showDate">{{dateString(song)}}</td>
 			<th data-ng-show="showIsDebut"><i class="fa fa-star" data-ng-show="song.isDebut"></i></th>
-			<td data-ng-show="showScore">{{ song.score | number:1 }}</td>
+			<td data-ng-hide="hiddenColumns['score']">{{ song.score | number:1 }}</td>
 			<td data-ng-show="showProjectedRank">{{formatProjectedRank(song.projectedRank)}}</td>
 			<td>{{song.debutRank}}</td>
 			<td>{{song.peakRank}}</td>
