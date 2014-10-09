@@ -52,6 +52,8 @@ function SongChartController(
 	
 	function columns() {
 	
+		this.title = { 'title': 'Title' };
+		this.artist = { 'title': "Artist" };
 		this.score = { 'title': 'Score' };
 		this.debutRank = { 'title': "Debut Rank" };
 		this.peakRank = { 'title': "Peak Rank" };
