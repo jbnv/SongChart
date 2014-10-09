@@ -100,7 +100,6 @@ function SongChartController(
 			size: 'sm',
 			resolve: {
 				song: function () {
-					console.log('resolve',song);
 					return song;
 				}
 			}

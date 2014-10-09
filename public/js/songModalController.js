@@ -3,7 +3,7 @@
 function SongModalController(
 	$scope, $modalInstance, song
 ) {
-	console.log('SongModalController',song);
+	console.log(song);
 	$scope.song = song;
 	$scope.identity = angular.identity;
 	

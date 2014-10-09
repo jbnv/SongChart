@@ -13,15 +13,7 @@
 	songChartApp.controller('songChartController', 
 		['$scope','$filter','$http','$modal',SongChartController]);
 	songChartApp.controller('songModalController', 
-		['$scope','$modalInstance',SongModalController]);
-	songChartApp.filter('months', function() {
-        return function(song) {
-            var result = [];
-            for (monthIndex = 0; monthIndex < song.duration; monthIndex++)
-                result.push(monthIndex);
-            return result;
-        };
-    });
+		['$scope','$modalInstance','song',SongModalController]);
 </script>
 </head>
 
@@ -111,24 +103,28 @@
 			<th tooltip-placement="bottom" tooltip="Debut Rank">D</th>
 			<th tooltip-placement="bottom" tooltip="Peak Rank">P</th>
 			<th tooltip-placement="bottom" tooltip="Duration (Months)">M</th>
+			<th tooltip-placement="bottom" tooltip="Coefficient Constant">K</th>
 			<th tooltip-placement="bottom" tooltip="Ascent Coefficient">A</th>
 			<th tooltip-placement="bottom" tooltip="Descent Coefficient">B</th>
+			<th tooltip-placement="bottom" tooltip="Time to Peak">H</th>
 		</tr>
 	</thead>
 	<tbody>
 		<tr data-ng-repeat="song in displayArray">
 			<td data-ng-show="showRank">{{ $index+1 }}</td>
-			<td><a data-ng-click="openSongModal(song)">{{song.title}}</a></td>
+			<td><a href="#" data-ng-click="openSongModal(song)">{{song.title}}</a></td>
 			<td><a href="http://playlists.wikidot.com/{{ song.artist }}">{{ song.artistObject.name }}</a></td>
 			<td data-ng-show="showDate">{{dateString(song)}}</td>
 			<th data-ng-show="showIsDebut"><i class="fa fa-star" data-ng-show="song.isDebut"></i></th>
-			<td data-ng-show="showScore">{{formatScore(song.score)}}</td>
+			<td data-ng-show="showScore">{{ song.score | number:1 }}</td>
 			<td data-ng-show="showProjectedRank">{{formatProjectedRank(song.projectedRank)}}</td>
 			<td>{{song.debutRank}}</td>
 			<td>{{song.peakRank}}</td>
 			<td><span data-ng-show="showProjectedRank">{{song.monthIndex}} / </span>{{song.duration}}</td>
+			<td>{{format2dp(song.coefficientConstant)}}</td>
 			<td>{{format2dp(song.ascentCoefficient)}}</td>
 			<td>{{format2dp(song.descentCoefficient)}}</td>
+			<td>{{format2dp(song.timeToPeak)}}</td>
 		</tr>
 	</tbody>
 </table>
@@ -141,18 +137,15 @@
 		</h3>
 	</div>
 	<div class="modal-body">
-		<table>
+		<table class="table table-condensed table-hover">
 			<tr><td>Debut Date</td><td><a href="http://playlists.wikidot.com/{{ song.date }}">{{ song.date }}</a></td></tr>
-			<tr><td>Total Score</td><td>{{ song.score | number:2 }}</td></tr>
-			<tr><td>Debut Rank</td><td>{{ song.debutRank }}</td></tr>
-			<tr><td>Peak Rank</td><td>{{ song.peakRank }}</td></tr>
-			<tr><td>Duration</td><td>{{ song.duration }}</td>
-			<tr><td>Ascent K</td><td>{{ song.ascentCoefficient | number:2 }}</td>
-			<tr><td>Descent K</td><td>{{ song.descentCoefficient | number:2 }}</td>
-		</table>
-		<p><b>Ranks</b></p>
-		<table>
-			<tr data-ng-repeat="monthIndex in song | months"><td>identity</td><td>thisSong.rank(identity)</td></tr>
+			<tr><td>Total Score</td><td>{{ song.score | number:1 }}</td></tr>
+			<tr><td>Debut/Peak Rank</td><td>{{ song.debutRank }} / {{ song.peakRank }}</td></tr>
+			<tr><td>Duration</td><td>{{ song.duration }}</td></tr>
+			<tr><td>Duration</td><td>{{ song.duration }}</td></tr>
+			<tr><td>Ascent/Descent K</td><td>{{ song.ascentCoefficient | number:2 }} / {{ song.descentCoefficient | number:2 }}</td></tr>
+			<tr><td><b>Ranks</b></td><td>&nbsp;</td></tr>
+			<tr data-ng-repeat="rankObject in song.pointRanks | orderBy:index"><td>{{ rankObject.m | number:1 }}</td><td>{{ rankObject.rank | number:2 }}</td></tr>
 		</table>
 	</div>
 	<div class="modal-footer">
