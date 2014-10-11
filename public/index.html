@@ -132,8 +132,7 @@
 					</ul>
 				</div>
 			</th>
-			<th data-ng-show="showDate">Date</th>
-			<th data-ng-show="showIsDebut"></th>
+			<th data-ng-hide="columns.debutDate.hidden">Date</th>
 			<th data-ng-hide="columns.score.hidden">
 				<div class="dropdown">
 					<a href="#" data-toggle="dropdown" class="dropdown-toggle">Score</a>
@@ -144,7 +143,18 @@
 					</ul>
 				</div>
 			</th>
-			<th data-ng-show="showProjectedRank" tooltip="Projected Rank">PR</th>
+			<th data-ng-hide="columns.projectedRank.hidden"></th>
+			<th data-ng-hide="columns.projectedRank.hidden">
+				<div class="dropdown">
+					<a href="#" data-toggle="dropdown" class="dropdown-toggle">PR</a>
+					<ul class="dropdown-menu">
+						<li><b>Projected Rank"> (PR)</b>
+						<li data-ng-click="setSort('projectedRank')"><a href="#"><i class="fa fa-sort-numeric-asc"></i> Order Ascending</a></li>
+						<li data-ng-click="setSort('-projectedRank')"><a href="#"><i class="fa fa-sort-numeric-desc"></i> Order Descending</a></li>
+						<li data-ng-click="columns.hide('projectedRank')"><a href="#"><i class="fa fa-remove"></i> Remove</a></li>
+					</ul>
+				</div>
+			</th>
 			<th data-ng-hide="columns.debutRank.hidden">
 				<div class="dropdown">
 					<a href="#" data-toggle="dropdown" class="dropdown-toggle">D</a>
@@ -178,39 +188,6 @@
 					</ul>
 				</div>
 			</th>
-			<th data-ng-hide="columns.k.hidden">
-				<div class="dropdown">
-					<a href="#" data-toggle="dropdown" class="dropdown-toggle">K</a>
-					<ul class="dropdown-menu">
-						<li><b>Coefficient Constant (K)</b></li>
-						<li data-ng-click="setSort('coefficientConstant')"><a href="#"><i class="fa fa-sort-numeric-asc"></i> Order Ascending</a></li>
-						<li data-ng-click="setSort('-coefficientConstant')"><a href="#"><i class="fa fa-sort-numeric-desc"></i> Order Descending</a></li>
-						<li data-ng-click="columns.hide('k')"><a href="#"><i class="fa fa-remove"></i> Remove</a></li>
-					</ul>
-				</div>
-			</th>
-			<th data-ng-hide="columns.a.hidden">
-				<div class="dropdown">
-					<a href="#" data-toggle="dropdown" class="dropdown-toggle">A</a>
-					<ul class="dropdown-menu">
-						<li><b>Ascent Coefficient</b></li>
-						<li data-ng-click="setSort('ascentCoefficient')"><a href="#"><i class="fa fa-sort-numeric-asc"></i> Order Ascending</a></li>
-						<li data-ng-click="setSort('-ascentCoefficient')"><a href="#"><i class="fa fa-sort-numeric-desc"></i> Order Descending</a></li>
-						<li data-ng-click="columns.hide('a')"><a href="#"><i class="fa fa-remove"></i> Remove</a></li>
-					</ul>
-				</div>
-			</th>
-			<th data-ng-hide="columns.d.hidden">
-				<div class="dropdown">
-					<a href="#" data-toggle="dropdown" class="dropdown-toggle">B</a>
-					<ul class="dropdown-menu">
-						<li><b>Descent Coefficient</b></li>
-						<li data-ng-click="setSort('descentCoefficient')"><a href="#"><i class="fa fa-sort-numeric-asc"></i> Order Ascending</a></li>
-						<li data-ng-click="setSort('-descentCoefficient')"><a href="#"><i class="fa fa-sort-numeric-desc"></i> Order Descending</a></li>
-						<li data-ng-click="columns.hide('d')"><a href="#"><i class="fa fa-remove"></i> Remove</a></li>
-					</ul>
-				</div>
-			</th>
 			<th data-ng-hide="columns.timeToPeak.hidden">
 				<div class="dropdown">
 					<a href="#" data-toggle="dropdown" class="dropdown-toggle">H</a>
@@ -229,16 +206,13 @@
 			<td data-ng-hide="columns.rank.hidden">{{ song.rank }}</td>
 			<td data-ng-hide="columns.title.hidden"><a href="#" data-ng-click="openSongModal(song)">{{song.title}}</a></td>
 			<td data-ng-hide="columns.artist.hidden"><a href="http://playlists.wikidot.com/{{ song.artist }}">{{ song.artistObject.name }}</a></td>
-			<td data-ng-show="showDate">{{dateString(song)}}</td>
-			<th data-ng-show="showIsDebut"><i class="fa fa-star" data-ng-show="song.isDebut"></i></th>
-			<td data-ng-hide="columns.score.hidden">{{ song.score | number:1 }}</td>
-			<td data-ng-show="showProjectedRank">{{formatProjectedRank(song.projectedRank)}}</td>
+			<td data-ng-hide="columns.debutDate.hidden">{{dateString(song)}}</td>
+			<td data-ng-hide="columns.score.hidden">{{ song.score | number:2 }}</td>
+			<td data-ng-hide="columns.projectedRank.hidden"><i class="fa fa-star" data-ng-show="song.isDebut"></i></th>
+			<td data-ng-hide="columns.projectedRank.hidden">{{song.projectedRank | number:1 }}</td>
 			<td data-ng-hide="columns.debutRank.hidden">{{song.debutRank}}</td>
 			<td data-ng-hide="columns.peakRank.hidden">{{song.peakRank}}</td>
 			<td data-ng-hide="columns.duration.hidden"><span data-ng-show="showProjectedRank">{{song.monthIndex}} / </span>{{song.duration}}</td>
-			<td data-ng-hide="columns.k.hidden">{{ song.coefficientConstant | number:2 }}</td>
-			<td data-ng-hide="columns.a.hidden">{{ song.ascentCoefficient | number:2 }}</td>
-			<td data-ng-hide="columns.b.hidden">{{ song.descentCoefficient | number:2 }}</td>
 			<td data-ng-hide="columns.timeToPeak.hidden">{{ song.timeToPeak | number:2 }}</td>
 		</tr>
 	</tbody>
@@ -254,13 +228,12 @@
 	<div class="modal-body">
 		<table class="table table-condensed table-hover">
 			<tr><td>Debut Date</td><td><a href="http://playlists.wikidot.com/{{ song.date }}">{{ song.date }}</a></td></tr>
-			<tr><td>Total Score</td><td>{{ song.score | number:1 }}</td></tr>
+			<tr><td>Total Score</td><td>{{ song.score | number:2 }}</td></tr>
 			<tr><td>Debut/Peak Rank</td><td>{{ song.debutRank }} / {{ song.peakRank }}</td></tr>
 			<tr><td>Duration</td><td>{{ song.duration }}</td></tr>
-			<tr><td>Duration</td><td>{{ song.duration }}</td></tr>
-			<tr><td>Ascent/Descent K</td><td>{{ song.ascentCoefficient | number:2 }} / {{ song.descentCoefficient | number:2 }}</td></tr>
+			<tr><td>Time to Peak</td><td>{{ song.timeToPeak | number:2 }}</td></tr>
 			<tr><td><b>Ranks</b></td><td>&nbsp;</td></tr>
-			<tr data-ng-repeat="rankObject in song.pointRanks | orderBy:index"><td>{{ rankObject.m | number:1 }}</td><td>{{ rankObject.rank | number:2 }}</td></tr>
+			<tr data-ng-repeat="rankObject in song.pointRanks"><td>{{ rankObject.m | number:2 }}</td><td>{{ rankObject.value | number:2 }}</td></tr>
 		</table>
 	</div>
 	<div class="modal-footer">

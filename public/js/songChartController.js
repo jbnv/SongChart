@@ -4,9 +4,6 @@ function SongChartController(
 	$scope,$filter,$http,$modal
 ) {
 	$scope.identity = angular.identity;
-	$scope.formatScore = function(score) { return Math.floor(score*1000)/1000; };
-	$scope.formatProjectedRank = function(score) { return Math.floor(score*10)/10; };
-	$scope.format2dp = function(score) { return Math.floor(score*100)/100; };
 
 	$scope.months = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
 		
@@ -56,6 +53,8 @@ function SongChartController(
 		this.title = { 'title': 'Title' };
 		this.artist = { 'title': "Artist" };
 		this.score = { 'title': 'Score' };
+		this.projectedRank = { 'title': "Projected Rank" };
+		this.debutDate = { 'title': "Debut Date" };
 		this.debutRank = { 'title': "Debut Rank" };
 		this.peakRank = { 'title': "Peak Rank" };
 		this.duration = { 'title': "Duration (Months)" };
@@ -106,12 +105,19 @@ function SongChartController(
 		$scope.showSpinner = true;
 		y = $scope.filter.year;
 		m = $scope.filter.month;
-		$scope.showRank = true;
-		$scope.showDate = false;
-		$scope.showIsDebut = m;
-		$scope.showScore = !m;
-		$scope.showProjectedRank = m;
-		sortField = m ? 'projectedRank' : 'score';
+		$scope.columns.show('rank');
+		$scope.columns.hide('debutDate');
+		if (m) {
+			$scope.showIsDebut = true;
+			$scope.columns.show('projectedRank');
+			$scope.columns.hide('score');
+			sortField = 'projectedRank';
+		} else {
+			$scope.showIsDebut = false;
+			$scope.columns.hide('projectedRank');
+			$scope.columns.show('score');
+			sortField = '-score';
+		}
 		$http.get('scores/'+y+(m?'/'+m:''))
 			.then(function(result) {
 				list = $filter('orderBy')(result.data, [sortField]);
@@ -131,7 +137,7 @@ function SongChartController(
 		var modalInstance = $modal.open({
 			templateUrl: 'songModal.html',
 			controller: 'songModalController',
-			size: 'sm',
+			size: '',
 			resolve: {
 				song: function () {
 					return song;
