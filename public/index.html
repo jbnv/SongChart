@@ -232,8 +232,14 @@
 			<tr><td>Debut/Peak Rank</td><td>{{ song.debutRank }} / {{ song.peakRank }}</td></tr>
 			<tr><td>Duration</td><td>{{ song.duration }}</td></tr>
 			<tr><td>Time to Peak</td><td>{{ song.timeToPeak | number:2 }}</td></tr>
-			<tr><td><b>Ranks</b></td><td>&nbsp;</td></tr>
-			<tr data-ng-repeat="rankObject in song.pointRanks"><td>{{ rankObject.m | number:2 }}</td><td>{{ rankObject.value | number:2 }}</td></tr>
+		</table>
+		<h3><td>&nbsp;</td></tr>
+		<table class="table table-condensed table-hover">
+			<tr><th>Ranks</th><th>Wk 1</th><th>Wk 2</th><th>Wk 3</th><th>Wk 4</th></tr>
+			<tr data-ng-repeat="month in pivot(song.pointRanks)">
+				<td>Month {{ $index+1 }}</td>
+				<td data-ng-repeat="value in month">{{ value | number:1 }}</td>
+			</tr>
 		</table>
 	</div>
 	<div class="modal-footer">
