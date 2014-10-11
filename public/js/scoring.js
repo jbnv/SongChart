@@ -38,19 +38,16 @@ exports.score = function(song) {
 			song.score += Math.exp(1-pointRank);
 		}
 		
+		// Find the four weekly ranks for the given month, and average them.
 		song.rank = function(m) {
-			value = (
-				_.reduce(
-					this.pointRanks,
-					function(total,pointRank) {
-						if (pointRank.m >= m && pointRank.m < m+1) {
-							total += pointRank.value;
-						}
-					},
-					0
-				)
-			)/4;
-			return value;
+			total = 0;
+			for (index in this.pointRanks) {
+				prm = this.pointRanks[index].m;
+				if ((prm >= m) && (prm < m+1)) {
+					total += this.pointRanks[index].value;
+				}
+			}
+			return total/4;
 		}
 		
 	}
