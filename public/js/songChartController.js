@@ -79,26 +79,45 @@ function SongChartController(
 		return scoreObject.year + '-' + ("00"+scoreObject.month).substr(-2,2);
 	}
 	
+	function getPage(fullname,config,callback) {
+		$http.get('page/'+fullname,config)
+			.success(callback)
+			.error(function(data,status,headers,config) {
+				alertService.addAlert({
+					"title": "Failure to Get Page Data",
+					"message": "The call to page/"+fullname+" failed to return data.",
+					"data": data, 
+					'status':status, 
+					'headers':headers, 
+					'config':config 
+				});
+				$scope.showAlertIcon = true;
+			})
+		;
+	}
+	
 	function getArtist(songObject) {
-		$scope.showSpinner = true;
 		if (!songObject) return;
 		config = { 
 			cache: true, // use default cache
 		}; 
-		$http.get('page/'+songObject.artist,config).then(function(result) {
-			data = result.data[0];
-			if (!data) {
-				name = 'data NULL';
-			} else if (!data.title) {
-				name = 'data.title NULL';
-			} else {
-				name = data.title;
+		getPage(
+			songObject.artist, // Force fail for testing.
+			config,
+			function(data,status,headers,config) {
+				data = data[0];
+				if (!data) {
+					name = 'data NULL';
+				} else if (!data.title) {
+					name = 'data.title NULL';
+				} else {
+					name = data.title;
+				}
+				songObject.artistObject = {
+					'name' : name
+				};
 			}
-			songObject.artistObject = {
-				'name' : name
-			};
-			$scope.showSpinner = false;
-		});
+		);
 	}
 			
 	function getData()  {
@@ -133,7 +152,10 @@ function SongChartController(
 				alertService.addAlert({
 					"title": "Failure to Get Data",
 					"message": "The call to scores/"+y+(m?'/'+m:'')+" failed to return data.",
-					"data": { 'data': data, 'status':status, 'headers':headers, 'config':config }
+					"data": data, 
+					'status':status, 
+					'headers':headers, 
+					'config':config 
 				});
 				$scope.showAlertIcon = true;
 				$scope.showSpinner = false;
@@ -159,7 +181,7 @@ function SongChartController(
 		var modalInstance = $modal.open({
 			templateUrl: 'alertModal.html',
 			controller: 'alertModalController',
-			size: 'sm'
+			size: ''
 		});
 	};
 
