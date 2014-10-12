@@ -59,11 +59,20 @@
 					><a href="#">{{month}}</a></li>
                 </ul>
             </li>
-			<li data-ng-hide="showSpinner">
-				<a tooltip-placement="bottom" tooltip="Songs Loaded">{{ displayArray.length }} <i class="fa fa-music"></i></a>
+			<li class="dropdown" data-ng-hide="showSpinner">
+				<a tooltip-placement="bottom" tooltip="Songs Loaded" data-toggle="dropdown" class="dropdown-toggle">
+					<i class="fa fa-music"></i> 
+					<span data-ng-show="countLimit">{{ countLimit }} /</span>
+					{{ displayArray.length }} 
+					<b class="caret"></b>
+				</a>
+				<ul class="dropdown-menu">
+					<li data-ng-repeat="n in [10,20,100]" data-ng-click="setCountLimit(n)">Top {{n}}</li>
+					<li data-ng-click="setCountLimit()">All</td>
+				</ul>
 			</li>
 			<li data-ng-hide="showSpinner">
-				<a tooltip-placement="bottom" tooltip="Artists Loaded">TODO <i class="fa fa-paint-brush"></i></a>
+				<a tooltip-placement="bottom" tooltip="Artists Loaded"><i class="fa fa-paint-brush"></i> TODO</a>
 			</li>
         </ul>
 		<ul class="nav navbar-nav navbar-right">
