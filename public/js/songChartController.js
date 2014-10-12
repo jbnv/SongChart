@@ -164,5 +164,4 @@ function SongChartController(
 	};
 
 	$scope.init();
-	$scope.showAlertIcon = true;
 }
