@@ -8,12 +8,17 @@
 <!-- Application -->
 <script src="/js/songChartController.js" charset="utf-8"></script>
 <script src="/js/songModalController.js" charset="utf-8"></script>
+<script src="/js/alertModalController.js" charset="utf-8"></script>
+<script src="/js/alertService.js" charset="utf-8"></script>
 <script>
 	var songChartApp = angular.module('songChartApp', ['ui.bootstrap']);
+	songChartApp.service('alertService', AlertService);
 	songChartApp.controller('songChartController', 
-		['$scope','$filter','$http','$modal',SongChartController]);
+		['$scope','$filter','$http','$modal','alertService',SongChartController]);
 	songChartApp.controller('songModalController', 
 		['$scope','$modalInstance','song',SongModalController]);
+	songChartApp.controller('alertModalController', 
+		['$scope','$modalInstance','alertService',AlertModalController]);
 </script>
 </head>
 
@@ -76,17 +81,28 @@
 			</li>
         </ul>
 		<ul class="nav navbar-nav navbar-right">
-            <li class="dropdown">
-                <a href="#" data-toggle="dropdown" class="dropdown-toggle">Show Column <b class="caret"></b></a>
-                <ul class="dropdown-menu">
-                    <li
-						data-ng-repeat="(slug,details) in columns | filter: {hidden:true}"
-						data-ng-click="columns.show(slug)"
-					><a href="#">{{details.title}}</a></li>
-                </ul>
-            </li>
 			<li>
 				<ul class="btn-group">
+					<li 
+						data-ng-show="showAlertIcon" 
+						data-ng-click="openAlertModal()" 
+						class="btn btn-default"
+					>
+						<i class="fa fa-2x fa-warning text-warning"></i>
+					</li>
+					<li 
+						data-toggle="dropdown" 
+						class="btn btn-default dropdown dropdown-toggle"
+						tooltip-placement="bottom" tooltip="Show hidden columns."
+					>
+						<i class="fa fa-2x fa-columns"></i> <b class="caret"></b>
+						<ul class="dropdown-menu">
+							<li
+								data-ng-repeat="(slug,details) in columns | filter: {hidden:true}"
+								data-ng-click="columns.show(slug)"
+							><a href="#">{{details.title}}</a></li>
+						</ul>
+					</li>
 					<li 
 						data-ng-click="reload()"
 						class="btn btn-default" 
@@ -217,7 +233,7 @@
 			<td data-ng-hide="columns.artist.hidden"><a href="http://playlists.wikidot.com/{{ song.artist }}">{{ song.artistObject.name }}</a></td>
 			<td data-ng-hide="columns.debutDate.hidden">{{dateString(song)}}</td>
 			<td data-ng-hide="columns.score.hidden">{{ song.score | number:2 }}</td>
-			<td data-ng-hide="columns.projectedRank.hidden"><i class="fa fa-star" data-ng-show="song.isDebut"></i></th>
+			<td data-ng-hide="columns.projectedRank.hidden"><i class="fa fa-star text-primary" data-ng-show="song.isDebut"></i></th>
 			<td data-ng-hide="columns.projectedRank.hidden">{{song.projectedRank | number:1 }}</td>
 			<td data-ng-hide="columns.debutRank.hidden">{{song.debutRank}}</td>
 			<td data-ng-hide="columns.peakRank.hidden">{{song.peakRank}}</td>
@@ -250,6 +266,22 @@
 				<td data-ng-repeat="value in month">{{ value | number:1 }}</td>
 			</tr>
 		</table>
+	</div>
+	<div class="modal-footer">
+		<button class="btn btn-primary" ng-click="ok()">Close</button>
+	</div>
+</script>
+
+<script type="text/ng-template" id="alertModal.html">
+	<div class="modal-body">
+		<div ng-repeat="alert in alerts">
+			<h3 class="text-{{alert.type}}">
+				{{ alert.title }} 
+				<button class="btn btn-xs btn-default" data-ng-click="closeAlert($index)"><i class="fa fa-close"></i></button>
+			</h3> 
+			<p>{{ alert.message }}</p>
+			<p>{{ alert.data | json }}</p>
+		</div>
 	</div>
 	<div class="modal-footer">
 		<button class="btn btn-primary" ng-click="ok()">Close</button>
