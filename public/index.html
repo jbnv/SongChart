@@ -270,8 +270,9 @@
 				{{ alert.title }} 
 				<button class="btn btn-xs btn-default" data-ng-click="closeAlert($index)"><i class="fa fa-close"></i></button>
 			</h3> 
-			<p>{{ alert.message }}</p>
-			<p>{{ alert.data | json }}</p>
+			<p>{{ alert.message }} {{ alert.data }}</p>
+			<p><b>Config:</b> {{ alert.config | json }}</p>
+			<p><b>Headers:</b> {{ alert.headers | json }}</p>
 		</div>
 	</div>
 	<div class="modal-footer">
