@@ -1,7 +1,7 @@
 //TODO Detect when the server side hasn't finished loading all songs. Display an appropriate message.
 
 function SongChartController(
-	$scope,$filter,$http,$modal
+	$scope,$filter,$http,$modal,alertService
 ) {
 	$scope.identity = angular.identity;
 
@@ -119,14 +119,23 @@ function SongChartController(
 			sortField = '-score';
 		}
 		$http.get('scores/'+y+(m?'/'+m:''))
-			.then(function(result) {
-				list = $filter('orderBy')(result.data, [sortField]);
+			.success(function(data,status,headers,config) {
+				list = $filter('orderBy')(data, [sortField]);
 				for (var index in list) {
 					song = list[index];
 					song.rank = parseInt(index)+1;
 					getArtist(song);
 				}
 				$scope.displayArray = list;
+				$scope.showSpinner = false;
+			})
+			.error(function(data,status,headers,config) {
+				alertService.addAlert({
+					"title": "Failure to Get Data",
+					"message": "The call to scores/"+y+(m?'/'+m:'')+" failed to return data.",
+					"data": { 'data': data, 'status':status, 'headers':headers, 'config':config }
+				});
+				$scope.showAlertIcon = true;
 				$scope.showSpinner = false;
 			})
     };
@@ -146,5 +155,14 @@ function SongChartController(
 		});
 	};
 
+	$scope.openAlertModal = function () {
+		var modalInstance = $modal.open({
+			templateUrl: 'alertModal.html',
+			controller: 'alertModalController',
+			size: 'sm'
+		});
+	};
+
 	$scope.init();
+	$scope.showAlertIcon = true;
 }
