@@ -45,6 +45,7 @@ function pushSong(pArray,pSlug,pSong) {
 
 // Cache the songs that have been downloaded.
 var _songs = {};
+var _songsUngotten = [];
 var _calendar = new Calendar();
 var _artists = {};
 
@@ -56,7 +57,7 @@ Wikidot.listCategory('s',function(error,list) {
 		Wikidot.getPage(list[index], function(error,content) {
 			//TODO If (error) do something with it to requeue content.fullname.
 			if (error) {
-				console.log('Error getting song.', list[index], error);
+				_songsUngotten.push(list[index]);
 				return;
 			}
 
@@ -95,6 +96,9 @@ Wikidot.listCategory('s',function(error,list) {
 	} // for each in list
 }); // Wikidot.listCategory
 
+//TODO If getting a list of songs, attempt to get the ones that weren't gotten.
+//TODO If that fails, proceed with what you have. 
+
 app.get('/scores/artist/:slug', function(request,response) {
 	response.json(_artists[request.params.slug]);
 });
@@ -125,7 +129,7 @@ app.get('/scores/decade/:decade', function(request,response) {
 
 //TODO Add /:top parameter.
 app.get('/scores/:year', function(request,response) {
-	console.log('/scores/:year/',request.params.year);
+	console.log('/scores/:year/',request.params.year,'Ungotten count:',_songsUngotten.length);
 	try {
 		stuff = _calendar.get().byYear(request.params.year);
 		if (stuff) {
@@ -143,7 +147,7 @@ app.get('/scores/:year', function(request,response) {
 
 //TODO Add /:top parameter.
 app.get('/scores/:year/:month', function(request,response) {
-	console.log('/scores/:year/:month',request.params.year,request.params.month);
+	console.log('/scores/:year/:month',request.params.year,request.params.month,'Ungotten count:',_songsUngotten.length);
 	try {
 		stuff = _calendar.get().byMonth(request.params.year,request.params.month);
 		if (stuff) {
@@ -184,10 +188,16 @@ function getPages(list) {
 
 app.get('/page/:fullname', function(request,response) {
 
+	console.log('/page',request.params.fullname);
+	
     getPages([request.params.fullname])
     .then(
 		function(returnValue) { response.json(returnValue); }
-	).done();
+	)
+	.fail(function (error) {
+		console.log('/page',request.params.fullname,'ERROR',error);
+	})
+	.done();
 	
 });
 
