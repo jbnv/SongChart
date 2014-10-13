@@ -1,5 +1,13 @@
 /*jshint node:true*/
 
+//TODO
+// Refreshing involves the following issues:
+// - Checking to see if the existing songs/artists have updated information.
+// - CHecking to see if there are new songs to be included in the result set.
+// New songs: Get the song list again and see if it has grown. If it has, put the songs in the ungotten list
+// for a 
+
+
 var Express = require('express'),
 	Wikidot = require('./public/js/wikidot'),
 	Scoring = require('./public/js/scoring'),
@@ -16,15 +24,15 @@ app.set('views', __dirname + '/views'); //optional since express defaults to CWD
 app.engine('html', require('ejs').renderFile);
 
 
-
+//TODO Refactor routing definitions out to a middleware routes.js
+//TODO Routes = require('./public/js/routes');
+//TODO Routes.apply(app);
 
 // render index page
 app.get('/', function(request,response) {
 	res.render("index.html");
 });
 
-// New idea: Preload the score data at app startup.
-// Then load associated data on demand.
 
 Wikidot.username = 'jbnv';
 Wikidot.apiKey = 'w8nk4WBpinduE75nrgbYUFObIJDkNLXs';
@@ -45,59 +53,77 @@ function pushSong(pArray,pSlug,pSong) {
 
 // Cache the songs that have been downloaded.
 var _songs = {};
-var _songsUngotten = [];
 var _calendar = new Calendar();
 var _artists = {};
 
-console.log("Getting list of song pages.");
-Wikidot.listCategory('s',function(error,list) {
-	console.log("Received list of song pages; now getting pages.");
-	for (var index in list) {
-		if (!/^s:\d+$/.test(list[index])) continue;
-		Wikidot.getPage(list[index], function(error,content) {
-			//TODO If (error) do something with it to requeue content.fullname.
-			if (error) {
-				_songsUngotten.push(list[index]);
-				return;
+function getSongPageList() {
+	console.log("Getting list of song pages.");
+	Wikidot.listCategory('s',function(error,list) {
+		if (error) {
+			console.log('ERROR getSongPageList:',error);
+			return;
+		}
+		for (var index in list) {
+			songFullname = list[index];
+			if (!/^s:\d+$/.test(songFullname)) continue;
+			if (!_songs[songFullname]) {
+				setImmediate(getPage, { 'fullname':songFullname, 'target':_songs, 'callback':processSongPage });
 			}
+		} // for list
+	}); // Wikidot.listCategory
+} // getSongPageList
+		
+function getPage(p) {
+	var fullname = p.fullname;
+	var target = p.target;
+	var callback = p.callback;
 
-			song = new Wikidot.WikidotPage();
-			song.injectContent(content, Wikidot.ContentTypes.DataForm);
-			Scoring.score(song);
-			//IDEA Push calculated song data back into Wikidot?
+	Wikidot.getPage(fullname, function(error,content) {
+		if (error) {
+			setImmediate(getPage,p); // requeue this
+			return;
+		}
+		if (callback) {
+			target[fullname] = callback(content);
+		} else {
+			target[fullname] = content;
+		}
+	}); // Wikidot.getPage
+}
 			
-			_songs[song.fullname] = song;
-			pushSong(_artists,song.artist,song);
-			
-			// File the song in the appropriate calendar entries.
-			slug = song.date;
-			timespan = new Timespan(slug);
-			decade = timespan.decade;
-			year   = timespan.year;
-			month0 = timespan.month;
-			if (decade) {
-				_calendar.put(song).byDecade(decade);
-			} else if (year) {
-				_calendar.put(song).byYear(year);
-				if (year && month0) {
-					// In this case, the song will be filed multiple times --
-					// once for each month during its duration.
-					for (monthIndex = 0; monthIndex < song.duration; monthIndex++) {
-						thisSong = _.clone(song);
-						if (monthIndex == 0) thisSong.isDebut = true;
-						thisSong.monthIndex = monthIndex;
-						thisSong.projectedRank = thisSong.rank(monthIndex);
-						_calendar.put(thisSong).byMonth(year,month0+monthIndex);
-						//IDEA Push song ratings back into Wikidot?
-					}
-				} 
-			} //if
-		}); // Wikidot.getPage
-	} // for each in list
-}); // Wikidot.listCategory
-
-//TODO If getting a list of songs, attempt to get the ones that weren't gotten.
-//TODO If that fails, proceed with what you have. 
+function processSongPage(content) {
+	song = new Wikidot.WikidotPage();
+	song.injectContent(content, Wikidot.ContentTypes.DataForm);
+	Scoring.score(song);
+	//IDEA Push calculated song data back into Wikidot?
+	
+	_songs[song.fullname] = song;
+	pushSong(_artists,song.artist,song);
+	
+	// File the song in the appropriate calendar entries.
+	slug = song.date;
+	timespan = new Timespan(slug);
+	decade = timespan.decade;
+	year   = timespan.year;
+	month0 = timespan.month;
+	if (decade) {
+		_calendar.put(song).byDecade(decade);
+	} else if (year) {
+		_calendar.put(song).byYear(year);
+		if (year && month0) {
+			// In this case, the song will be filed multiple times --
+			// once for each month during its duration.
+			for (monthIndex = 0; monthIndex < song.duration; monthIndex++) {
+				thisSong = _.clone(song);
+				if (monthIndex == 0) thisSong.isDebut = true;
+				thisSong.monthIndex = monthIndex;
+				thisSong.projectedRank = thisSong.rank(monthIndex);
+				_calendar.put(thisSong).byMonth(year,month0+monthIndex);
+				//IDEA Push song ratings back into Wikidot?
+			}
+		} 
+	} //if
+}
 
 app.get('/scores/artist/:slug', function(request,response) {
 	response.json(_artists[request.params.slug]);
@@ -212,10 +238,17 @@ var appInfo = JSON.parse(process.env.VCAP_APPLICATION || "{}");
 var services = JSON.parse(process.env.VCAP_SERVICES || "{}");
 // TODO: Get service credentials and communicate with bluemix services.
 
+// Start server
 // The IP address of the Cloud Foundry DEA (Droplet Execution Agent) that hosts this application:
 var host = (process.env.VCAP_APP_HOST || 'localhost');
 // The port on the DEA for communication with the application:
 var port = (process.env.VCAP_APP_PORT || 3000);
-// Start server
 app.listen(port, host);
+
+// Start application loops.
+setImmediate(getSongPageList);
+setInterval(getSongPageList,5*60*1000);
+
+// All done.
 console.log('Application setup complete.');
+// ================================================================================
