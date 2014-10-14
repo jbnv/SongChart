@@ -1,7 +1,7 @@
 //TODO Detect when the server side hasn't finished loading all songs. Display an appropriate message.
 
 function SongChartController(
-	$scope,$filter,$http,$modal,alertService
+	$scope,$filter,$http,$modal,alertService,songResource
 ) {
 	$scope.identity = angular.identity;
 
@@ -79,65 +79,95 @@ function SongChartController(
 		return scoreObject.year + '-' + ("00"+scoreObject.month).substr(-2,2);
 	}
 	
+	function getPage(fullname,config,callback) {
+		$http.get('page/'+fullname,config)
+			.success(callback)
+			.error(function(data,status,headers,config) {
+				alertService.addAlert({
+					"title": "Failure to Get Page Data",
+					"message": "The call to page/"+fullname+" failed to return data.",
+					"data": data, 
+					'status':status, 
+					'headers':headers, 
+					'config':config 
+				});
+				$scope.showAlertIcon = true;
+			})
+		;
+	}
+	
 	function getArtist(songObject) {
-		$scope.showSpinner = true;
 		if (!songObject) return;
 		config = { 
 			cache: true, // use default cache
 		}; 
-		$http.get('page/'+songObject.artist,config).then(function(result) {
-			data = result.data[0];
-			if (!data) {
-				name = 'data NULL';
-			} else if (!data.title) {
-				name = 'data.title NULL';
-			} else {
-				name = data.title;
+		getPage(
+			songObject.artist, // Force fail for testing.
+			config,
+			function(data,status,headers,config) {
+				data = data[0];
+				if (!data) {
+					name = 'data NULL';
+				} else if (!data.title) {
+					name = 'data.title NULL';
+				} else {
+					name = data.title;
+				}
+				songObject.artistObject = {
+					'name' : name
+				};
 			}
-			songObject.artistObject = {
-				'name' : name
-			};
-			$scope.showSpinner = false;
-		});
+		);
 	}
+	
 			
+	//TODO Add refresh parameter, which will be set by refresh button.
 	function getData()  {
 		$scope.showSpinner = true;
+		$scope.displayArray = [];
+
 		y = $scope.filter.year;
 		m = $scope.filter.month;
 		$scope.columns.show('rank');
 		$scope.columns.hide('debutDate');
+		parameters = { 'year': y }; //TODO add refresh
 		if (m) {
+			parameters.month = m;
 			$scope.showIsDebut = true;
 			$scope.columns.show('projectedRank');
 			$scope.columns.hide('score');
-			sortField = 'projectedRank';
+			parameters.sortField = 'projectedRank';
 		} else {
 			$scope.showIsDebut = false;
 			$scope.columns.hide('projectedRank');
 			$scope.columns.show('score');
-			sortField = '-score';
+			parameters.sortField = '-score';
 		}
-		$http.get('scores/'+y+(m?'/'+m:''))
-			.success(function(data,status,headers,config) {
-				list = $filter('orderBy')(data, [sortField]);
-				for (var index in list) {
-					song = list[index];
-					song.rank = parseInt(index)+1;
+		
+		console.log('getData',parameters);
+		
+		$scope.displayArray = songResource.query(
+			parameters,
+			function(content, responseHeaders) { // success callback
+				angular.forEach(content, function(song) {
 					getArtist(song);
-				}
-				$scope.displayArray = list;
+					//TODO In month mode, check debut ranks on debut songs and mark if out of order.
+				})
 				$scope.showSpinner = false;
-			})
-			.error(function(data,status,headers,config) {
+			},
+			function(httpResponse) { // error callback
 				alertService.addAlert({
 					"title": "Failure to Get Data",
 					"message": "The call to scores/"+y+(m?'/'+m:'')+" failed to return data.",
-					"data": { 'data': data, 'status':status, 'headers':headers, 'config':config }
+					"data": httpResponse.data, 
+					'status':httpResponse.status, 
+					'headers':httpResponse.headers, 
+					'config':httpResponse.config 
 				});
 				$scope.showAlertIcon = true;
 				$scope.showSpinner = false;
-			})
+			}
+		);
     };
 	
 	$scope.reload = getData;
@@ -172,7 +202,7 @@ function SongChartController(
 		var modalInstance = $modal.open({
 			templateUrl: 'alertModal.html',
 			controller: 'alertModalController',
-			size: 'sm'
+			size: ''
 		});
 	};
 

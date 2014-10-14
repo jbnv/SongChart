@@ -19,23 +19,25 @@ exports.score = function(song) {
 
 		D = Math.log(song.debutRank);
 		P = Math.log(song.peakRank);
-		song.timeToPeak = (song.debutRank-song.peakRank) / 20;
+		song.timeToPeak = 1 - Math.exp(1 - Math.sqrt(song.debutRank / song.peakRank));
 
 		song.pointRanks = [];
 		song.score = 0;
 		for (monthIndex = 0; monthIndex < song.duration; monthIndex += 0.25) {
 
-			// Calculate point rank.
+			// Calculate scaled point rank.
 			if (monthIndex < song.timeToPeak) {
-				pointRank = Math.exp(D + (P-D)*monthIndex/song.timeToPeak);
+				R = D + (P-D)*monthIndex/song.timeToPeak;
 			} else {
 				m0 = monthIndex - song.timeToPeak;
-				pointRank = Math.exp(P + 3*m0/(song.duration-song.timeToPeak));
+				R = P + 3*m0/(song.duration-song.timeToPeak);
 			}
 
 			// Store and use the value.
-			song.pointRanks.push({'m':parseFloat(monthIndex), 'value':pointRank});
-			song.score += Math.exp(1-pointRank);
+			song.pointRanks.push({'m':parseFloat(monthIndex), 'value':Math.exp(R)});
+			if (R <= 3) {
+				song.score += 3-R;
+			}
 		}
 		
 		// Find the four weekly ranks for the given month, and average them.
