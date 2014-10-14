@@ -133,18 +133,18 @@ app.get('/scores/duration/:duration', function(request,response) {
 
 app.get('/songs', function(request,response) {
 
-	console.log('/songs',request.params);
+	console.log('/songs',request.query);
 	
 	// Get post parameters.
-	var decade = request.params.decade;
-	var year   = request.params.year;
-	var month  = request.params.month;
-	var refresh = request.params.refresh; // can be anything
-	var top    = request.params.top; // default: all
+	var decade = request.query.decade;
+	var year   = request.query.year;
+	var month  = request.query.month;
+	var refresh = request.query.refresh; // can be anything
+	var top    = request.query.top; // default: all
 	
 	//TODO Generalize and add support for multiple fields.
 	function orderFn(song) {
-		field = request.params.sortField;
+		field = request.query.sortField ? request.query.sortField : "-score";
 		sign = 1;
 		if (field.substr(0,1) == "-") {
 			field = field.substr(1);
@@ -176,7 +176,7 @@ app.get('/songs', function(request,response) {
 		if (content) {
 			content = _.sortBy(content,orderFn);
 			for (var index in content) {
-				song = list[index];
+				song = content[index];
 				song.rank = parseInt(index)+1;
 			}
 			if (top) {
