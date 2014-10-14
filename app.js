@@ -1,13 +1,5 @@
 /*jshint node:true*/
 
-//TODO
-// Refreshing involves the following issues:
-// - Checking to see if the existing songs/artists have updated information.
-// - CHecking to see if there are new songs to be included in the result set.
-// New songs: Get the song list again and see if it has grown. If it has, put the songs in the ungotten list
-// for a 
-
-
 var Express = require('express'),
 	Wikidot = require('./public/js/wikidot'),
 	Scoring = require('./public/js/scoring'),
@@ -66,32 +58,28 @@ function getSongPageList() {
 		for (var index in list) {
 			songFullname = list[index];
 			if (!/^s:\d+$/.test(songFullname)) continue;
-			if (!_songs[songFullname]) {
-				setImmediate(getPage, { 'fullname':songFullname, 'target':_songs, 'callback':processSongPage });
-			}
+			if (_songs[songFullname]) continue;
+			setImmediate(getPage, { 'fullname':songFullname, 'callback':processSongPage });
 		} // for list
 	}); // Wikidot.listCategory
 } // getSongPageList
-		
+
+// p: { 'fullname': fullname of page to get, 'callback': function to process the received content }
 function getPage(p) {
-	var fullname = p.fullname;
-	var target = p.target;
-	var callback = p.callback;
+	var fullname = p.fullname;  
 
 	Wikidot.getPage(fullname, function(error,content) {
 		if (error) {
 			setImmediate(getPage,p); // requeue this
 			return;
 		}
-		if (callback) {
-			target[fullname] = callback(content);
-		} else {
-			target[fullname] = content;
-		}
+		p.callback(content);
 	}); // Wikidot.getPage
 }
 			
 function processSongPage(content) {
+	if (_songs[content.fullname]) return; // prevent duplicates
+
 	song = new Wikidot.WikidotPage();
 	song.injectContent(content, Wikidot.ContentTypes.DataForm);
 	Scoring.score(song);
@@ -143,50 +131,71 @@ app.get('/scores/duration/:duration', function(request,response) {
 	response.json(subset);
 });
 
+app.get('/songs', function(request,response) {
 
-app.get('/scores/decade/:decade', function(request,response) {
-	response.json(_calendar.get().byDecade(request.params.decade));
-});
-
-//TODO Add /:top parameter.
-app.get('/scores/decade/:decade', function(request,response) {
-	response.json(_calendar.get().byDecade(request.params.decade));
-});
-
-//TODO Add /:top parameter.
-app.get('/scores/:year', function(request,response) {
-	console.log('/scores/:year/',request.params.year,'Ungotten count:',_songsUngotten.length);
-	try {
-		stuff = _calendar.get().byYear(request.params.year);
-		if (stuff) {
-			console.log('stuff count',stuff.length);
-		} else {
-			console.log('Nothing returned!');
+	console.log('/songs',request.params);
+	
+	// Get post parameters.
+	var decade = request.params.decade;
+	var year   = request.params.year;
+	var month  = request.params.month;
+	var refresh = request.params.refresh; // can be anything
+	var top    = request.params.top; // default: all
+	
+	//TODO Generalize and add support for multiple fields.
+	function orderFn(song) {
+		field = request.params.sortField;
+		sign = 1;
+		if (field.substr(0,1) == "-") {
+			field = field.substr(1);
+			sign = -1;
 		}
+		return song[field];
 	}
-	catch (e) {
-		console.log('EXCEPTION',e);
-		stuff = {}; //TODO Make this more robust.
-	}
-	response.json(stuff);
-});
 
-//TODO Add /:top parameter.
-app.get('/scores/:year/:month', function(request,response) {
-	console.log('/scores/:year/:month',request.params.year,request.params.month,'Ungotten count:',_songsUngotten.length);
-	try {
-		stuff = _calendar.get().byMonth(request.params.year,request.params.month);
-		if (stuff) {
-			console.log('stuff count',stuff.length);
-		} else {
-			console.log('Nothing returned!');
+	if (refresh) {
+		 q = Q.fcall(getSongPageList);
+	} else {
+		q = Q.fcall(function() { return; } );
+	}
+	
+	q.then(function() {
+	
+		content = {};
+		
+		if (decade) {
+			content = _calendar.get().byDecade();
+		} else if (year) {
+			if (month) {
+				content = _calendar.get().byMonth(year,month);
+			} else {
+				content = _calendar.get().byYear(year);
+			}
 		}
-	}
-	catch (e) {
-		console.log('EXCEPTION',e);
-		stuff = {}; //TODO Make this more robust.
-	}
-	response.json(stuff);
+
+		if (content) {
+			content = _.sortBy(content,orderFn);
+			for (var index in content) {
+				song = list[index];
+				song.rank = parseInt(index)+1;
+			}
+			if (top) {
+				content = _.first(content,top);
+			}
+			console.log('Returning songs.',content.length);
+		} else {
+			console.log('No songs to return!');
+		}
+
+		response.json(content);
+	})
+	
+	.catch(function (error) {
+		console.log('ERROR',error);
+		response.json({}); //TODO Make this more robust.
+	})
+	
+	.done();
 });
 
 //TODO /artists/top/:count (also apply this pattern to song scores)
@@ -247,7 +256,7 @@ app.listen(port, host);
 
 // Start application loops.
 setImmediate(getSongPageList);
-setInterval(getSongPageList,5*60*1000);
+// TODO Make the refresh occur on demand--when the Refresh button is pressed in the application.
 
 // All done.
 console.log('Application setup complete.');

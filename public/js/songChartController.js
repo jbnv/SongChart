@@ -1,7 +1,7 @@
 //TODO Detect when the server side hasn't finished loading all songs. Display an appropriate message.
 
 function SongChartController(
-	$scope,$filter,$http,$modal,alertService
+	$scope,$filter,$http,$modal,alertService,songResource
 ) {
 	$scope.identity = angular.identity;
 
@@ -119,47 +119,52 @@ function SongChartController(
 			}
 		);
 	}
+	
 			
+	//TODO Add refresh parameter, which will be set by refresh button.
 	function getData()  {
 		$scope.showSpinner = true;
 		y = $scope.filter.year;
 		m = $scope.filter.month;
 		$scope.columns.show('rank');
 		$scope.columns.hide('debutDate');
+		parameters = { 'year': y }; //TODO add refresh
 		if (m) {
+			parameters.month = m;
 			$scope.showIsDebut = true;
 			$scope.columns.show('projectedRank');
 			$scope.columns.hide('score');
-			sortField = 'projectedRank';
+			parameters.sortField = 'projectedRank';
 		} else {
 			$scope.showIsDebut = false;
 			$scope.columns.hide('projectedRank');
 			$scope.columns.show('score');
-			sortField = '-score';
+			parameters.sortField = '-score';
 		}
-		$http.get('scores/'+y+(m?'/'+m:''))
-			.success(function(data,status,headers,config) {
-				list = $filter('orderBy')(data, [sortField]);
-				for (var index in list) {
-					song = list[index];
-					song.rank = parseInt(index)+1;
-					getArtist(song);
+		
+		$scope.displayArray = songResource.query(parameters)
+		.then(
+			function(value, responseHeaders) { // success callback
+				console.log('Success!',parameters); 
+				for (var index in $scope.displayArray) {
+					getArtist($scope.displayArray[index]);
 				}
-				$scope.displayArray = list;
 				$scope.showSpinner = false;
-			})
-			.error(function(data,status,headers,config) {
+			},
+			function(httpResponse) { // error callback
+				console.log('Error!');
 				alertService.addAlert({
 					"title": "Failure to Get Data",
 					"message": "The call to scores/"+y+(m?'/'+m:'')+" failed to return data.",
-					"data": data, 
-					'status':status, 
-					'headers':headers, 
-					'config':config 
+					"data": httpResponse.data, 
+					'status':httpResponse.status, 
+					'headers':httpResponse.headers, 
+					'config':httpResponse.config 
 				});
 				$scope.showAlertIcon = true;
 				$scope.showSpinner = false;
-			})
+			}
+		);
     };
 	
 	$scope.reload = getData;

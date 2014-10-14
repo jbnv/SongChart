@@ -2,6 +2,7 @@
 <head>
 <!-- Library -->
 <script src="/lib/angular.js" charset="utf-8"></script>
+<script src="/lib/angular-resource.js" charset="utf-8"></script>
 <script src="/lib/ui-bootstrap-tpls-0.11.0.js" charset="utf-8"></script>
 <link rel="stylesheet" type="text/css" href="/lib/bootstrap.css"></link>
 <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
@@ -11,10 +12,24 @@
 <script src="/js/alertModalController.js" charset="utf-8"></script>
 <script src="/js/alertService.js" charset="utf-8"></script>
 <script>
-	var songChartApp = angular.module('songChartApp', ['ui.bootstrap']);
+	var songChartApp = angular.module('songChartApp', ['ui.bootstrap','ngResource']);
 	songChartApp.service('alertService', AlertService);
+	songChartApp.factory('songResource', function($resource) {
+		return $resource(
+			'/songs', 
+			{ // parameters
+				'decade':'@decade',
+				'year':'@year',
+				'month':'@month',
+				'refresh':'@refresh',
+				'top':'@top',
+				'artist':'@artist',
+				'orderby':'@orderby'
+			}
+		);
+	});
 	songChartApp.controller('songChartController', 
-		['$scope','$filter','$http','$modal','alertService',SongChartController]);
+		['$scope','$filter','$http','$modal','alertService','songResource',SongChartController]);
 	songChartApp.controller('songModalController', 
 		['$scope','$modalInstance','song',SongModalController]);
 	songChartApp.controller('alertModalController', 
