@@ -14,21 +14,27 @@ function SongChartController(
 	$scope.setFilter = function(p) {
 		if (!p) {
 			$scope.filter = { 
-				decade: 0, year: 0, month: 0 
+				decade: 0, year: 0, month: 0
 			};
 			$scope.display = { 
 				decade: "Decade", year: "Year", month: "Month" 
 			};
 		} else //TODO p.artist
 		if (p.decade) {
+			$scope.resultTitle = p.decade+'s';
 			$scope.filter = { 
-				decade: p.decade, year: 0, month: 0 
+				decade: p.decade, year: 0, month: 0, limit: 100
 			};
 			$scope.display = { 
 				decade: (p.decade ? ''+p.decade+'s' : "Decade"), year: "Year", month: "Month" 
 			};
-			//TODO getData() for decade;
-			$scope.displayArray = [];
+			$scope.columns.show('rank');
+			$scope.columns.hide('debutDate');
+			$scope.columns.hide('projectedRank');
+			$scope.columns.show('score');
+			$scope.showIsDebut = false;
+			$scope.dataParameters = { 'decade': p.decade, 'sortField':'-score' }; //TODO add refresh
+			getData();
 		} else if (p.year) {
 			p.decade = p.year - p.year%10;
 			$scope.filter = { 
@@ -37,9 +43,27 @@ function SongChartController(
 			$scope.display = { 
 				decade: ''+p.decade+'s', year: ''+p.year, month: p.month ? $scope.months[p.month-1] : 'Select Month' 
 			};
+			$scope.columns.show('rank');
+			$scope.columns.hide('debutDate');
+			$scope.dataParameters = { 'year': p.year }; //TODO add refresh
+			if (p.month) {
+				$scope.resultTitle = $scope.months[p.month-1]+' '+p.year;
+				$scope.dataParameters.month = p.month;
+				$scope.showIsDebut = true;
+				$scope.columns.show('projectedRank');
+				$scope.columns.hide('score');
+				$scope.dataParameters.sortField = 'projectedRank';
+			} else {
+				$scope.resultTitle = p.year;
+				$scope.showIsDebut = false;
+				$scope.columns.hide('projectedRank');
+				$scope.columns.show('score');
+				$scope.dataParameters.sortField = '-score';
+			}		
 			getData();
 		} else {
 			$scope.displayArray = [];
+			$scope.resultTitle = '(Invalid or null filter)';
 		}
 	}
 
@@ -119,35 +143,16 @@ function SongChartController(
 			}
 		);
 	}
-	
 			
 	//TODO Add refresh parameter, which will be set by refresh button.
 	function getData()  {
 		$scope.showSpinner = true;
 		$scope.displayArray = [];
 
-		y = $scope.filter.year;
-		m = $scope.filter.month;
-		$scope.columns.show('rank');
-		$scope.columns.hide('debutDate');
-		parameters = { 'year': y }; //TODO add refresh
-		if (m) {
-			parameters.month = m;
-			$scope.showIsDebut = true;
-			$scope.columns.show('projectedRank');
-			$scope.columns.hide('score');
-			parameters.sortField = 'projectedRank';
-		} else {
-			$scope.showIsDebut = false;
-			$scope.columns.hide('projectedRank');
-			$scope.columns.show('score');
-			parameters.sortField = '-score';
-		}
-		
-		console.log('getData',parameters);
+		console.log('getData',$scope.dataParameters);
 		
 		$scope.displayArray = songResource.query(
-			parameters,
+			$scope.dataParameters,
 			function(content, responseHeaders) { // success callback
 				angular.forEach(content, function(song) {
 					getArtist(song);
@@ -174,8 +179,7 @@ function SongChartController(
 
 	// If n not set, limit = all.
 	$scope.setCountLimit = function(n) {
-		oldCountLimit = $scope.countLimit;
-		$scope.countLimit = n;
+		$scope.filter.limit = n;
 	}
 	
 	$scope.openSongModal = function (song) {

@@ -163,8 +163,11 @@ app.get('/songs', function(request,response) {
 	
 		content = {};
 		
+		//TODO Option to return highest-peaking songs.
+		//TODO Option to return highest-debuting songs.
+		//TODO Option to return only those songs for a particular artist.
 		if (decade) {
-			content = _calendar.get().byDecade();
+			content = _calendar.get().byDecade(decade);
 		} else if (year) {
 			if (month) {
 				content = _calendar.get().byMonth(year,month);
