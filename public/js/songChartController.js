@@ -17,10 +17,23 @@ function SongChartController(
 				decade: 0, year: 0, month: 0
 			};
 			$scope.display = { 
-				decade: "Decade", year: "Year", month: "Month" 
+				decade: "Main Menu", year: "Year", month: "Month" 
 			};
-		} else //TODO p.artist
-		if (p.decade) {
+		} else if (p.topArtists) {
+			$scope.resultTitle = 'Top Artists';
+			//TODO 
+		} else if (p.topByPeak) {
+			$scope.resultTitle = 'Top Songs by Peak Position';
+			//TODO 
+		} else if (p.topByDebut) {
+			$scope.resultTitle = 'Top Songs by Debut Position';
+			//TODO 
+		} else if (p.topByDuration) {
+			$scope.resultTitle = 'Top Songs by Longevity';
+			//TODO 
+		} else if (p.artist) {
+			//TODO 
+		} else if (p.decade) {
 			$scope.resultTitle = p.decade+'s';
 			$scope.filter = { 
 				decade: p.decade, year: 0, month: 0, limit: 100

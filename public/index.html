@@ -74,9 +74,18 @@
             <li class="dropdown">
                 <a href="#" data-toggle="dropdown" class="dropdown-toggle">{{display.decade}} <b class="caret"></b></a>
                 <ul class="dropdown-menu">
-					<li data-ng-repeat="decade in [1970,1980,1990,2000] | orderBy: identity" 
+					<li role="presentation" class="dropdown-header">Songs by Time Period</li>
+					<li role="presentation" 
+						data-ng-repeat="decade in [1970,1980,1990,2000] | orderBy: identity" 
 						data-ng-click="setFilter({'decade':decade})"
 					><a href="#">{{decade}}s</a></li>
+					<li role="presentation" class="divider">
+					<li role="presentation" class="dropdown-header">Songs by Properties</li>
+					<li role="presentation" data-ng-click="setFilter({'topByPeak':true})"><a href="#">Top by Peak Position</a></li>
+					<li role="presentation" data-ng-click="setFilter({'topByDebut':true})"><a href="#">Top by Debut Position</a></li>
+					<li role="presentation" data-ng-click="setFilter({'topByDuration':true})"><a href="#">Top by Longevity</a></li>
+					<li role="presentation" class="divider">
+					<li role="presentation" data-ng-click="setFilter({'topArtists':true})"><a href="#">Top Artists</a></li>
                 </ul>
 			</li>
             <li class="dropdown" data-ng-show="filter.decade > 0">
