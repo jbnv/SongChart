@@ -150,7 +150,7 @@ app.get('/songs', function(request,response) {
 			field = field.substr(1);
 			sign = -1;
 		}
-		return song[field];
+		return sign*song[field];
 	}
 
 	if (refresh) {
