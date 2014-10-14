@@ -230,7 +230,8 @@ app.get('/page/:fullname', function(request,response) {
 		function(returnValue) { response.json(returnValue); }
 	)
 	.fail(function (error) {
-		console.log('/page',request.params.fullname,'ERROR',error);
+		console.log('ERROR',error);
+		response.json({}); //TODO Make this more robust.
 	})
 	.done();
 	

@@ -124,6 +124,8 @@ function SongChartController(
 	//TODO Add refresh parameter, which will be set by refresh button.
 	function getData()  {
 		$scope.showSpinner = true;
+		$scope.displayArray = [];
+
 		y = $scope.filter.year;
 		m = $scope.filter.month;
 		$scope.columns.show('rank');
@@ -142,17 +144,18 @@ function SongChartController(
 			parameters.sortField = '-score';
 		}
 		
-		$scope.displayArray = songResource.query(parameters)
-		.then(
-			function(value, responseHeaders) { // success callback
-				console.log('Success!',parameters); 
-				for (var index in $scope.displayArray) {
-					getArtist($scope.displayArray[index]);
-				}
+		console.log('getData',parameters);
+		
+		$scope.displayArray = songResource.query(
+			parameters,
+			function(content, responseHeaders) { // success callback
+				angular.forEach(content, function(song) {
+					getArtist(song);
+					//TODO In month mode, check debut ranks on debut songs and mark if out of order.
+				})
 				$scope.showSpinner = false;
 			},
 			function(httpResponse) { // error callback
-				console.log('Error!');
 				alertService.addAlert({
 					"title": "Failure to Get Data",
 					"message": "The call to scores/"+y+(m?'/'+m:'')+" failed to return data.",
