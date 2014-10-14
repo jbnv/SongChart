@@ -28,6 +28,22 @@
 			}
 		);
 	});
+	songChartApp.filter('top', function () {
+		// The built-in limit function doesn't work if there is no limit specified--it returns zero elements.
+		// The behavior needed is to return all elements.
+		// Also, we want to filter on song.rank, not just slice the array.
+        return function (songList,limit) {
+			if (!songList) return [];
+			if (!limit) return songList;
+			var filteredList = [];
+			angular.forEach(songList, function(song) {
+				if (song.rank <= limit) {
+					this.push(song);
+				}
+			},filteredList);
+			return filteredList;
+        };
+    });
 	songChartApp.controller('songChartController', 
 		['$scope','$filter','$http','$modal','alertService','songResource',SongChartController]);
 	songChartApp.controller('songModalController', 
@@ -87,7 +103,7 @@
 					<b class="caret"></b>
 				</a>
 				<ul class="dropdown-menu">
-					<li data-ng-repeat="n in [10,20,100]" data-ng-click="setCountLimit(n)">Top {{n}}</li>
+					<li data-ng-repeat="n in [10,20,40,100]" data-ng-click="setCountLimit(n)">Top {{n}}</li>
 					<li data-ng-click="setCountLimit()">All</td>
 				</ul>
 			</li>
@@ -242,7 +258,7 @@
 		</tr>
 	</thead>
 	<tbody>
-		<tr data-ng-repeat="song in displayArray | orderBy:sortPredicate">
+		<tr data-ng-repeat="song in displayArray | orderBy:sortPredicate | top:countLimit ">
 			<td data-ng-hide="columns.rank.hidden">{{ song.rank }}</td>
 			<td data-ng-hide="columns.title.hidden"><a href="#" data-ng-click="openSongModal(song)">{{song.title}}</a></td>
 			<td data-ng-hide="columns.artist.hidden"><a href="http://playlists.wikidot.com/{{ song.artist }}">{{ song.artistObject.name }}</a></td>

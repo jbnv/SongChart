@@ -176,14 +176,7 @@ function SongChartController(
 	$scope.setCountLimit = function(n) {
 		oldCountLimit = $scope.countLimit;
 		$scope.countLimit = n;
-		//TODO Alter the listing as needed.
-		//TODO Load additional entries if needed.
-/*		if ($scope.countLimit > $scope.displayArray.length) {
-			alertService.addAlert({
-				"title": "Download Song List Again",
-			});
-		}
-*/	}
+	}
 	
 	$scope.openSongModal = function (song) {
 		var modalInstance = $modal.open({
