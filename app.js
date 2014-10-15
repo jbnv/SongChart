@@ -24,6 +24,10 @@ app.engine('html', require('ejs').renderFile);
 app.get('/', function(request,response) {
 	res.render("index.html");
 });
+//TODO songChart.html
+app.get('/artistChart', function(request,response) {
+	response.render("artistChart.html");
+});
 
 
 Wikidot.username = 'jbnv';
@@ -131,6 +135,18 @@ app.get('/scores/duration/:duration', function(request,response) {
 	response.json(subset);
 });
 
+//TODO Generalize and add support for multiple fields.
+function orderFnFn(field) {
+	var sign = 1;
+	if (field.substr(0,1) == "-") {
+		field = field.substr(1);
+		sign = -1;
+	}
+	return function(entity) {
+		return sign*entity[field];
+	}
+}
+
 app.get('/songs', function(request,response) {
 
 	console.log('/songs',request.query);
@@ -141,18 +157,9 @@ app.get('/songs', function(request,response) {
 	var month  = request.query.month;
 	var refresh = request.query.refresh; // can be anything
 	var top    = request.query.top; // default: all
-	
-	//TODO Generalize and add support for multiple fields.
-	function orderFn(song) {
-		field = request.query.sortField ? request.query.sortField : "-score";
-		sign = 1;
-		if (field.substr(0,1) == "-") {
-			field = field.substr(1);
-			sign = -1;
-		}
-		return sign*song[field];
-	}
 
+	orderField = request.query.sortField ? request.query.sortField : "-score";
+	
 	if (refresh) {
 		 q = Q.fcall(getSongPageList);
 	} else {
@@ -175,9 +182,11 @@ app.get('/songs', function(request,response) {
 				content = _calendar.get().byYear(year);
 			}
 		}
+		
+		//TODO Filter songs by criteria given.
 
 		if (content) {
-			content = _.sortBy(content,orderFn);
+			content = _.sortBy(content,orderFnFn(orderField));
 			for (var index in content) {
 				song = content[index];
 				song.rank = parseInt(index)+1;
@@ -201,10 +210,15 @@ app.get('/songs', function(request,response) {
 	.done();
 });
 
-//TODO /artists/top/:count (also apply this pattern to song scores)
 app.get('/artists', function(request,response) {
 	console.log('/artists');
-	returnArray = _.map(
+
+	var top    
+		= request.query.top ? request.query.top : 100;
+	var orderField 
+		= request.query.sortField ? request.query.sortField : "-score";
+	
+	content = _.map(
 		_artists,
 		function (songArray, artistSlug) {
 			return {
@@ -214,7 +228,22 @@ app.get('/artists', function(request,response) {
 			};
 		}
 	); // _.map
-	response.json(returnArray);
+
+	if (content) {
+		content = _.sortBy(content,orderFnFn(orderField));
+		for (var index in content) {
+			entity = content[index];
+			entity.rank = parseInt(index)+1;
+		}
+		if (top) {
+			content = _.first(content,top);
+		}
+		console.log('Returning artists.',content.length);
+	} else {
+		console.log('No artists to return!');
+	}
+
+	response.json(content);
 });
 
 function getPages(list) {

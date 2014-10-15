@@ -1,0 +1,178 @@
+<html>
+<head>
+<!-- Library -->
+<script src="/lib/angular.js" charset="utf-8"></script>
+<script src="/lib/angular-resource.js" charset="utf-8"></script>
+<script src="/lib/ui-bootstrap-tpls-0.11.0.js" charset="utf-8"></script>
+<link rel="stylesheet" type="text/css" href="/lib/bootstrap.css"></link>
+<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+<!-- Application -->
+<script src="/js/artistChartController.js" charset="utf-8"></script>
+<script src="/js/alertModalController.js" charset="utf-8"></script>
+<script src="/js/alertService.js" charset="utf-8"></script>
+<script src="/js/resources.js" charset="utf-8"></script>
+<script src="/js/topFilter.js" charset="utf-8"></script>
+<script>
+	var artistChartApp = angular.module('artistChartApp', ['ui.bootstrap','ngResource']);
+	artistChartApp.service('alertService', AlertService);
+	artistChartApp.factory('resources', Resources);
+	artistChartApp.filter('top', TopFilter);
+	artistChartApp.controller('artistChartController', 
+		['$scope','$filter','$http','$modal','alertService','resources',ArtistChartController]);
+	artistChartApp.controller('alertModalController', 
+		['$scope','$modalInstance','alertService',AlertModalController]);
+</script>
+</head>
+
+<script>
+</script>
+
+<body data-ng-app="artistChartApp" data-ng-controller="artistChartController">
+
+<nav role="navigation" class="navbar navbar-default navbar-fixed-top">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+        <button type="button" data-target="#navbarCollapse" data-toggle="collapse" class="navbar-toggle">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+    </div>
+    <!-- Collection of nav links and other content for toggling -->
+    <div id="navbarCollapse" class="collapse navbar-collapse">
+        <ul role="navigation" class="nav navbar-nav">
+			<li class="dropdown" data-ng-hide="showSpinner">
+				<a tooltip-placement="bottom" tooltip="Artists Loaded" data-toggle="dropdown" class="dropdown-toggle">
+					<i class="fa fa-paint-brush"></i> 
+					<span data-ng-show="filter.limit">{{ filter.limit }} /</span>
+					{{ displayArray.length }} 
+					<b class="caret"></b>
+				</a>
+				<ul class="dropdown-menu">
+					<li data-ng-repeat="n in [10,20,40,100]" data-ng-click="setCountLimit(n)">Top {{n}}</li>
+					<li data-ng-click="setCountLimit()">All</td>
+				</ul>
+			</li>
+        </ul>
+		<ul class="nav navbar-nav navbar-right">
+			<li>
+				<ul class="btn-group">
+					<li 
+						data-ng-show="showAlertIcon" 
+						data-ng-click="openAlertModal()" 
+						class="btn btn-default"
+					>
+						<i class="fa fa-2x fa-warning text-warning"></i>
+					</li>
+					<li 
+						data-toggle="dropdown" 
+						class="btn btn-default dropdown dropdown-toggle"
+						tooltip-placement="bottom" tooltip="Show hidden columns."
+					>
+						<i class="fa fa-2x fa-columns"></i> <b class="caret"></b>
+						<ul class="dropdown-menu">
+							<li
+								data-ng-repeat="(slug,details) in columns | filter: {hidden:true}"
+								data-ng-click="columns.show(slug)"
+							><a href="#">{{details.title}}</a></li>
+						</ul>
+					</li>
+					<li 
+						data-ng-click="reload()"
+						class="btn btn-default" 
+						tooltip-placement="bottom" tooltip="Reload content for current query."
+					><i data-ng-hide="showSpinner" class="fa fa-2x fa-refresh"></i>
+					<i data-ng-show="showSpinner" class="fa fa-2x fa-refresh fa-spin"></i>
+					</li>
+					<li 
+						data-ng-click="init()"
+						class="btn btn-default" 
+						tooltip-placement="bottom" tooltip="Reset query."
+					><i class="fa fa-2x fa-undo"></i>
+					</li>
+				</ul>
+			</li>
+		</ul>
+	</div>
+</nav>
+
+<br /><br/ ><!-- spacer to move table underneath nav bar -->
+<h1>{{ resultTitle }}</h1>
+
+<table class="table table-condensed table-hover" data-ng-show="displayArray.length > 0">
+	<thead>
+		<tr>
+			<th data-ng-hide="columns.rank.hidden">
+				<div class="dropdown">
+					<a href="#" data-toggle="dropdown" class="dropdown-toggle">Rank</a>
+					<ul class="dropdown-menu">
+						<li data-ng-click="setSort('rank')"><a href="#"><i class="fa fa-sort-numeric-asc"></i> Order Ascending</a></li>
+						<li data-ng-click="setSort('-rank')"><a href="#"><i class="fa fa-sort-numeric-desc"></i> Order Descending</a></li>
+						<li data-ng-click="columns.hide('rank')"><a href="#"><i class="fa fa-remove"></i> Remove</a></li>
+					</ul>
+				</div>
+			</th>
+			<th data-ng-hide="columns.artistName.hidden">
+				<div class="dropdown">
+					<a href="#" data-toggle="dropdown" class="dropdown-toggle">Name</a>
+					<ul class="dropdown-menu">
+						<li data-ng-click="setSort('name')"><a href="#"><i class="fa fa-sort-alpha-asc"></i> Order Ascending</a></li>
+						<li data-ng-click="setSort('-name')"><a href="#"><i class="fa fa-sort-alpha-desc"></i> Order Descending</a></li>
+						<li data-ng-click="columns.hide('artistName')"><a href="#"><i class="fa fa-remove"></i> Remove</a></li>
+					</ul>
+				</div>
+			</th>
+			<th data-ng-hide="columns.score.hidden">
+				<div class="dropdown">
+					<a href="#" data-toggle="dropdown" class="dropdown-toggle">Score</a>
+					<ul class="dropdown-menu">
+						<li data-ng-click="setSort('score')"><a href="#"><i class="fa fa-sort-numeric-asc"></i> Order Ascending</a></li>
+						<li data-ng-click="setSort('-score')"><a href="#"><i class="fa fa-sort-numeric-desc"></i> Order Descending</a></li>
+						<li data-ng-click="columns.hide('score')"><a href="#"><i class="fa fa-remove"></i> Remove</a></li>
+					</ul>
+				</div>
+			</th>
+			<th data-ng-hide="columns.songCount.hidden">
+				<div class="dropdown">
+					<a href="#" data-toggle="dropdown" class="dropdown-toggle"># Songs</a>
+					<ul class="dropdown-menu">
+						<li data-ng-click="setSort('songCount')"><a href="#"><i class="fa fa-sort-numeric-asc"></i> Order Ascending</a></li>
+						<li data-ng-click="setSort('-songCount')"><a href="#"><i class="fa fa-sort-numeric-desc"></i> Order Descending</a></li>
+						<li data-ng-click="columns.hide('songCount')"><a href="#"><i class="fa fa-remove"></i> Remove</a></li>
+					</ul>
+				</div>
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr data-ng-repeat="entity in displayArray | orderBy:sortPredicate | top:filter.limit ">
+			<td data-ng-hide="columns.rank.hidden">{{ entity.rank }}</td>
+			<td data-ng-hide="columns.artistName.hidden"><a href="http://playlists.wikidot.com/{{ entity.slug }}">{{ entity.artistObject.name }}</a></td>
+			<td data-ng-hide="columns.score.hidden">{{ entity.score | number:2 }}</td>
+			<td data-ng-hide="columns.songCount.hidden">{{ entity.songCount }}</td>
+		</tr>
+	</tbody>
+</table>
+
+<!-- TODO artistModal: Copy from songModal when I'm ready to implement it. -->
+
+<script type="text/ng-template" id="alertModal.html">
+	<div class="modal-body">
+		<div ng-repeat="alert in alerts">
+			<h3 class="text-{{alert.type}}">
+				{{ alert.title }} 
+				<button class="btn btn-xs btn-default" data-ng-click="closeAlert($index)"><i class="fa fa-close"></i></button>
+			</h3> 
+			<p>{{ alert.message }} {{ alert.data }}</p>
+			<p><b>Config:</b> {{ alert.config | json }}</p>
+			<p><b>Headers:</b> {{ alert.headers | json }}</p>
+		</div>
+	</div>
+	<div class="modal-footer">
+		<button class="btn btn-primary" ng-click="ok()">Close</button>
+	</div>
+</script>
+
+</body>
+</html>

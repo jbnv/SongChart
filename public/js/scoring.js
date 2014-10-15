@@ -57,15 +57,12 @@ exports.score = function(song) {
 }
 
 exports.songCollectionScore = function(songArray) {
-	tallies = _.reduce(
-		songArray, 
-		function(tallies,song) { 
-			tallies.debutrank += parseFloat(song.debutrank);
-			tallies.peakrank += parseFloat(song.peakrank);
-			tallies.duration += parseInt(song.months);
-			return tallies;
-		},
-		{ 'debutrank': 0, 'peakrank': 0, 'duration':0 }
-	); // _.reduce;
-	return 1; //TODO function(tallies.debutrank,tallies.peakrank,tallies.duration);
+	score = _.reduce(
+		songArray,
+		function(score,song) { 
+			return score + song.score ? parseFloat(song.score) : 0.0;
+		}, 
+		0.0
+	);
+	return score;
 }
