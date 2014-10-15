@@ -57,12 +57,12 @@ exports.score = function(song) {
 }
 
 exports.songCollectionScore = function(songArray) {
-	score = _.reduce(
-		songArray,
-		function(score,song) { 
-			return score + song.score ? parseFloat(song.score) : 0.0;
-		}, 
-		0.0
-	);
+	score = 0.0;
+	for (var index in songArray) {
+		song = songArray[index];
+		if (song.score) {
+			score += parseFloat(song.score);
+		}
+	}
 	return score;
 }

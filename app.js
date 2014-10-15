@@ -217,33 +217,49 @@ app.get('/artists', function(request,response) {
 		= request.query.top ? request.query.top : 100;
 	var orderField 
 		= request.query.sortField ? request.query.sortField : "-score";
-	
-	content = _.map(
-		_artists,
-		function (songArray, artistSlug) {
-			return {
-				slug: artistSlug,
-				songCount: songArray.length,
-				score: Scoring.songCollectionScore(songArray)
-			};
-		}
-	); // _.map
 
-	if (content) {
-		content = _.sortBy(content,orderFnFn(orderField));
-		for (var index in content) {
-			entity = content[index];
-			entity.rank = parseInt(index)+1;
-		}
-		if (top) {
-			content = _.first(content,top);
-		}
-		console.log('Returning artists.',content.length);
+	if (request.query.reload) {
+		 q = Q.fcall(getSongPageList);
 	} else {
-		console.log('No artists to return!');
+		q = Q.fcall(function() { return; } );
 	}
+	
+	q.then(function() {
+	
+		content = _.map(
+			_artists,
+			function (songArray, artistSlug) {
+				return {
+					slug: artistSlug,
+					songCount: songArray.length,
+					score: Scoring.songCollectionScore(songArray)
+				};
+			}
+		); // _.map
+		
+		if (content) {
+			content = _.sortBy(content,orderFnFn(orderField));
+			for (var index in content) {
+				entity = content[index];
+				entity.rank = parseInt(index)+1;
+			}
+			if (top) {
+				content = _.first(content,top);
+			}
+			console.log('Returning artists.',content.length);
+		} else {
+			console.log('No artists to return!');
+		}
 
-	response.json(content);
+		response.json(content);
+	})
+	
+	.catch(function (error) {
+		console.log('ERROR',error);
+		response.json({}); //TODO Make this more robust.
+	})
+	
+	.done();
 });
 
 function getPages(list) {

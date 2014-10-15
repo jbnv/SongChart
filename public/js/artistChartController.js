@@ -14,7 +14,7 @@ function ArtistChartController(
 	$scope.setFilter = function(p) {
 		$scope.resultTitle = 'Top Artists';
 		$scope.dataParameters = { 'list':'artists', 'sortField':'-score', 'top':100 }; 
-		getArtistChartData(); //TODO add refresh
+		getArtistChartData(); 
 	}
 	
 	$scope.setSort = function(predicate) {
@@ -72,9 +72,10 @@ function ArtistChartController(
 		;
 	}
 	
-	function getArtistChartData()  {
+	function getArtistChartData(reload)  {
 		$scope.showSpinner = true;
 		$scope.displayArray = [];
+		$scope.dataParameters.reload = reload;
 
 		console.log('getArtistChartData',$scope.dataParameters);
 		
@@ -104,7 +105,6 @@ function ArtistChartController(
 							};
 						}
 					);
-					//TODO In month mode, check debut ranks on debut songs and mark if out of order.
 				})				
 				$scope.showSpinner = false;
 			},
@@ -123,8 +123,6 @@ function ArtistChartController(
 		);
     };
 	
-	$scope.reload = getArtistChartData;
-
 	// If n not set, limit = all.
 	$scope.setCountLimit = function(n) {
 		$scope.filter.limit = n;
