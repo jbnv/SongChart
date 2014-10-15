@@ -21,38 +21,12 @@ function ArtistChartController(
 		$scope.sortPredicate = predicate;
 	}
 	
-	//TODO Extract column object to separate file.
-	function columns() {
-	
-		this.rank = { 'title': 'Rank' };
-		this.artistName = { 'title': "Name" };
-		this.score = { 'title': 'Score' };
-		
-		this.show = function() { 
-			for (var index in arguments) {
-				this[arguments[index]].hidden = false;
-			}
-		}
-
-		this.showOnly = function() { 
-			var columnsToShow = [];
-			for (var index in arguments) {
-				columnsToShow.push(arguments[index]);
-			}
-			angular.forEach($scope.columns, function(column,key) {
-				column.hidden = (columnsToShow.indexOf(key) == -1);
-			})
-		}
-
-		this.hide = function(slug) {
-			for (var index in arguments) {
-				this[arguments[index]].hidden = true;
-			}
-		}
-	
-	}
-		
-	$scope.columns = new columns();
+	$scope.columns = new Columns({
+		'rank'			: 'Rank',
+		'artistName'	: "Name",
+		'score'			: 'Score',
+		'songCount'		: '# of Songs'
+	});
 
 	//TODO Make this a resource.
 	function getPage(fullname,config,callback) {
