@@ -1,7 +1,8 @@
 //TODO Detect when the server side hasn't finished loading all songs. Display an appropriate message.
 
 function SongChartController(
-	$scope,$filter,$http,$modal,alertService,songResource
+	$scope,$filter,$http,$modal,
+	alertService,_artistService,_resources
 ) {
 	$scope.identity = angular.identity;
 
@@ -19,17 +20,24 @@ function SongChartController(
 			$scope.display = { 
 				decade: "Main Menu", year: "Year", month: "Month" 
 			};
-		} else if (p.topArtists) {
-			$scope.resultTitle = 'Top Artists';
-			//TODO 
+			return;
 		} else if (p.topByPeak) {
 			$scope.resultTitle = 'Top Songs by Peak Position';
+			$scope.dataParameters = { 'sortField':'-peakRank', 'top':100 };
+			$scope.columns.show('rank','score');
+			$scope.columns.hide('debutDate','projectedRank');
 			//TODO 
 		} else if (p.topByDebut) {
 			$scope.resultTitle = 'Top Songs by Debut Position';
+			$scope.dataParameters = { 'sortField':'-debutRank', 'top':100 };
+			$scope.columns.show('rank','score');
+			$scope.columns.hide('debutDate','projectedRank');
 			//TODO 
 		} else if (p.topByDuration) {
 			$scope.resultTitle = 'Top Songs by Longevity';
+			$scope.dataParameters = { 'sortField':'-duration', 'top':100 };
+			$scope.columns.show('rank','score');
+			$scope.columns.hide('debutDate','projectedRank');
 			//TODO 
 		} else if (p.artist) {
 			//TODO 
@@ -47,7 +55,7 @@ function SongChartController(
 			$scope.columns.show('score');
 			$scope.showIsDebut = false;
 			$scope.dataParameters = { 'decade': p.decade, 'sortField':'-score' }; //TODO add refresh
-			getData();
+			getSongChartData(); //TODO add refresh
 		} else if (p.year) {
 			p.decade = p.year - p.year%10;
 			$scope.filter = { 
@@ -73,102 +81,60 @@ function SongChartController(
 				$scope.columns.show('score');
 				$scope.dataParameters.sortField = '-score';
 			}		
-			getData();
+			getSongChartData(); //TODO add refresh
 		} else {
 			$scope.displayArray = [];
 			$scope.resultTitle = '(Invalid or null filter)';
+			return;
 		}
+		
 	}
 
 	$scope.setSort = function(predicate) {
 		$scope.sortPredicate = predicate;
 	}
 	
-	function columns() {
-	
-		this.rank = { 'title': 'Rank' };
-		this.title = { 'title': 'Title' };
-		this.artist = { 'title': "Artist" };
-		this.score = { 'title': 'Score' };
-		this.projectedRank = { 'title': "Projected Rank" };
-		this.debutDate = { 'title': "Debut Date" };
-		this.debutRank = { 'title': "Debut Rank" };
-		this.peakRank = { 'title': "Peak Rank" };
-		this.duration = { 'title': "Duration (Months)" };
-		this.k = { 'title': "Coefficient Constant" };
-		this.a = { 'title': "Ascent Coefficient" };
-		this.b = { 'title': "Descent Coefficient" };
-		this.timeToPeak = { 'title': "Time to Peak" };
+	$scope.columns = new Columns({
+		'rank': 'Rank',
+		'title': 'Title',
+		'artist': "Artist",
+		'score': 'Score',
+		'projectedRank': "Projected Rank",
+		'debutDate': "Debut Date",
+		'debutRank': "Debut Rank",
+		'peakRank': "Peak Rank",
+		'duration': "Duration (Months)",
+		'k': "Coefficient Constant",
+		'a': "Ascent Coefficient",
+		'b': "Descent Coefficient",
+		'timeToPeak': "Time to Peak"
+	});
 		
-		this.show = function(slug) {
-			this[slug].hidden = false;
-		}
-
-		this.hide = function(slug) {
-			this[slug].hidden = true;
-		}
-	
-	}
-		
-	$scope.columns = new columns();
-	
 	$scope.dateString = function(scoreObject) {
 		return scoreObject.year + '-' + ("00"+scoreObject.month).substr(-2,2);
 	}
-	
-	function getPage(fullname,config,callback) {
-		$http.get('page/'+fullname,config)
-			.success(callback)
-			.error(function(data,status,headers,config) {
-				alertService.addAlert({
-					"title": "Failure to Get Page Data",
-					"message": "The call to page/"+fullname+" failed to return data.",
-					"data": data, 
-					'status':status, 
-					'headers':headers, 
-					'config':config 
-				});
-				$scope.showAlertIcon = true;
-			})
-		;
-	}
-	
-	function getArtist(songObject) {
-		if (!songObject) return;
-		config = { 
-			cache: true, // use default cache
-		}; 
-		getPage(
-			songObject.artist, // Force fail for testing.
-			config,
-			function(data,status,headers,config) {
-				data = data[0];
-				if (!data) {
-					name = 'data NULL';
-				} else if (!data.title) {
-					name = 'data.title NULL';
-				} else {
-					name = data.title;
-				}
-				songObject.artistObject = {
-					'name' : name
-				};
-			}
-		);
-	}
-			
-	//TODO Add refresh parameter, which will be set by refresh button.
-	function getData()  {
-		$scope.showSpinner = true;
-		$scope.displayArray = [];
 
-		console.log('getData',$scope.dataParameters);
+	function addAlert(path,title,request) {
+		return function(httpResponse) {
+			alertService.addResourceAlert(path,title,request,httpResponse);
+			$scope.showAlertIcon = true;
+		};
+	}
 		
-		$scope.displayArray = songResource.query(
+	//TODO Add refresh parameter, which will be set by refresh button.
+	function getSongChartData()  {
+		$scope.showSpinner = true;
+		
+		$scope.displayArray = _resources.songs.query(
 			$scope.dataParameters,
 			function(content, responseHeaders) { // success callback
 				angular.forEach(content, function(song) {
-					getArtist(song);
+					var request = { 'fullname': song.artist };
+					var artistData = _resources.page.get(
+						request,
+						_artistService.bind(song), // returns success callback function
+						addAlert('page/'+song.artist,"Artist Data",request) // returns error callback function
+					);
 					//TODO In month mode, check debut ranks on debut songs and mark if out of order.
 				})
 				$scope.showSpinner = false;
@@ -188,7 +154,7 @@ function SongChartController(
 		);
     };
 	
-	$scope.reload = getData;
+	$scope.reload = getSongChartData; //TODO This needs to be generalized.
 
 	// If n not set, limit = all.
 	$scope.setCountLimit = function(n) {

@@ -11,23 +11,14 @@
 <script src="/js/songModalController.js" charset="utf-8"></script>
 <script src="/js/alertModalController.js" charset="utf-8"></script>
 <script src="/js/alertService.js" charset="utf-8"></script>
+<script src="/js/artistService.js" charset="utf-8"></script>
+<script src="/js/columns.js" charset="utf-8"></script>
+<script src="/js/resources.js" charset="utf-8"></script>
 <script>
 	var songChartApp = angular.module('songChartApp', ['ui.bootstrap','ngResource']);
 	songChartApp.service('alertService', AlertService);
-	songChartApp.factory('songResource', function($resource) {
-		return $resource(
-			'/songs', 
-			{ // parameters
-				'decade':'@decade',
-				'year':'@year',
-				'month':'@month',
-				'refresh':'@refresh',
-				'top':'@top',
-				'artist':'@artist',
-				'sortField':'@sortField'
-			}
-		);
-	});
+	songChartApp.service('artistService', ArtistService);
+	songChartApp.factory('resources', Resources);
 	songChartApp.filter('top', function () {
 		// The built-in limit function doesn't work if there is no limit specified--it returns zero elements.
 		// The behavior needed is to return all elements.
@@ -44,8 +35,11 @@
 			return filteredList;
         };
     });
-	songChartApp.controller('songChartController', 
-		['$scope','$filter','$http','$modal','alertService','songResource',SongChartController]);
+	songChartApp.controller('songChartController', [
+		'$scope','$filter','$http','$modal',
+		'alertService','artistService','resources',
+		SongChartController
+	]);
 	songChartApp.controller('songModalController', 
 		['$scope','$modalInstance','song',SongModalController]);
 	songChartApp.controller('alertModalController', 
@@ -271,7 +265,10 @@
 		<tr data-ng-repeat="song in displayArray | orderBy:sortPredicate | top:filter.limit ">
 			<td data-ng-hide="columns.rank.hidden">{{ song.rank }}</td>
 			<td data-ng-hide="columns.title.hidden"><a href="#" data-ng-click="openSongModal(song)">{{song.title}}</a></td>
-			<td data-ng-hide="columns.artist.hidden"><a href="http://playlists.wikidot.com/{{ song.artist }}">{{ song.artistObject.name }}</a></td>
+			<td data-ng-hide="columns.artistName.hidden">
+				<a href="http://playlists.wikidot.com/{{ song.artist }}">{{ song.artistObject.title }}</a>
+				<i data-ng-hide="song.artistObject.$resolved" class="fa fa-spinner fa-spin"></i>	
+			</td>
 			<td data-ng-hide="columns.debutDate.hidden">{{dateString(song)}}</td>
 			<td data-ng-hide="columns.score.hidden">{{ song.score | number:2 }}</td>
 			<td data-ng-hide="columns.projectedRank.hidden"><i class="fa fa-star text-primary" data-ng-show="song.isDebut"></i></th>
