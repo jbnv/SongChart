@@ -8,6 +8,7 @@
 <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
 <!-- Application -->
 <script src="/js/artistChartController.js" charset="utf-8"></script>
+<script src="/js/artistService.js" charset="utf-8"></script>
 <script src="/js/alertModalController.js" charset="utf-8"></script>
 <script src="/js/alertService.js" charset="utf-8"></script>
 <script src="/js/columns.js" charset="utf-8"></script>
@@ -16,10 +17,14 @@
 <script>
 	var artistChartApp = angular.module('artistChartApp', ['ui.bootstrap','ngResource']);
 	artistChartApp.service('alertService', AlertService);
+	artistChartApp.service('artistService', ArtistService);
 	artistChartApp.factory('resources', Resources);
 	artistChartApp.filter('top', TopFilter);
-	artistChartApp.controller('artistChartController', 
-		['$scope','$filter','$http','$modal','alertService','resources',ArtistChartController]);
+	artistChartApp.controller('artistChartController', [
+		'$scope','$filter','$http','$modal',
+		'alertService','artistService','resources',
+		ArtistChartController
+	]);
 	artistChartApp.controller('alertModalController', 
 		['$scope','$modalInstance','alertService',AlertModalController]);
 </script>
@@ -149,7 +154,10 @@
 	<tbody>
 		<tr data-ng-repeat="entity in displayArray | orderBy:sortPredicate | top:filter.limit ">
 			<td data-ng-hide="columns.rank.hidden">{{ entity.rank }}</td>
-			<td data-ng-hide="columns.artistName.hidden"><a href="http://playlists.wikidot.com/{{ entity.slug }}">{{ entity.artistObject.name }}</a></td>
+			<td data-ng-hide="columns.artistName.hidden">
+				<a href="http://playlists.wikidot.com/{{ entity.slug }}">{{ entity.artistObject.title }}</a>
+				<i data-ng-hide="entity.artistObject.$resolved" class="fa fa-spinner fa-spin"></i>	
+			</td>
 			<td data-ng-hide="columns.score.hidden">{{ entity.score | number:2 }}</td>
 			<td data-ng-hide="columns.songCount.hidden">{{ entity.songCount }}</td>
 		</tr>
