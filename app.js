@@ -30,10 +30,6 @@ app.get('/artistChart', function(request,response) {
 });
 
 
-Wikidot.username = 'jbnv';
-Wikidot.apiKey = 'w8nk4WBpinduE75nrgbYUFObIJDkNLXs';
-Wikidot.site = 'playlists';
-
 var deferred = Q.defer();
 
 // Utility functions.
@@ -275,7 +271,9 @@ app.get('/page/:fullname', function(request,response) {
 	
     getPages([request.params.fullname])
     .then(
-		function(returnValue) { response.json(returnValue); }
+		function(returnValue) { 
+			response.json(returnValue); 
+		}
 	)
 	.fail(function (error) {
 		console.log('ERROR',error);
@@ -289,6 +287,10 @@ app.get('/page/:fullname', function(request,response) {
 // VCAP_APPLICATION contains useful information about a deployed application.
 var appInfo = JSON.parse(process.env.VCAP_APPLICATION || "{}");
 // TODO: Get application information and use it in your app.
+
+Wikidot.username = process.env.WIKIDOT_USERNAME;
+Wikidot.apiKey = process.env.WIKIDOT_APIKEY;
+Wikidot.site = process.env.WIKIDOT_SITE;
 
 // VCAP_SERVICES contains all the credentials of services bound to
 // this application. For details of its content, please refer to
