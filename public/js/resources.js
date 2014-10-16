@@ -19,6 +19,12 @@ function Resources($resource) {
 				'top':'@top',
 				'sortField':'@sortField'
 			}
+		),
+		'page': $resource(
+			'/page/:fullname',
+			{ // parameters
+				'fullname':'@fullname'
+			}
 		)
 	};
 }

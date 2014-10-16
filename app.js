@@ -272,7 +272,7 @@ app.get('/page/:fullname', function(request,response) {
     getPages([request.params.fullname])
     .then(
 		function(returnValue) { 
-			response.json(returnValue); 
+			response.json(returnValue[0]); // Wikidot returns an array, but angular $resource.get expects an object.
 		}
 	)
 	.fail(function (error) {
