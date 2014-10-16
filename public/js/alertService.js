@@ -1,5 +1,7 @@
 function AlertService() {
 
+	//TODO Return the most severe type among the alerts so that the type can be used to color the icon.
+
 	// content: { type: "danger"|"success"|"info"|etc., title:"", fa: "fa-XXX", message: "", data: {} } 
 
 	// this.alerts: [ content ]
@@ -7,6 +9,15 @@ function AlertService() {
 	
 	this.addAlert = function(content) {
 		var newLength = this.alerts.push(content);
+	}
+
+	function addResourceAlert(path,title,request,httpResponse) {
+		this.alerts.push({
+			"type": "danger",
+			"title": "Failure to Get "+title,
+			"message": "The call to "+path+" failed to return data.",
+			"data": { 'request':request, 'httpResponse': httpResponse }
+		});
 	}
 
 	this.addDemoAlert = function() {
