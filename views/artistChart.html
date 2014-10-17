@@ -149,6 +149,16 @@
 					</ul>
 				</div>
 			</th>
+			<th data-ng-hide="columns.averageScore.hidden">
+				<div class="dropdown">
+					<a href="#" data-toggle="dropdown" class="dropdown-toggle">Avg Score</a>
+					<ul class="dropdown-menu">
+						<li data-ng-click="setSort('songCount')"><a href="#"><i class="fa fa-sort-numeric-asc"></i> Order Ascending</a></li>
+						<li data-ng-click="setSort('-songCount')"><a href="#"><i class="fa fa-sort-numeric-desc"></i> Order Descending</a></li>
+						<li data-ng-click="columns.hide('songCount')"><a href="#"><i class="fa fa-remove"></i> Remove</a></li>
+					</ul>
+				</div>
+			</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -160,6 +170,7 @@
 			</td>
 			<td data-ng-hide="columns.score.hidden">{{ entity.score | number:2 }}</td>
 			<td data-ng-hide="columns.songCount.hidden">{{ entity.songCount }}</td>
+			<td data-ng-hide="columns.averageScore.hidden">{{ entity.score/entity.songCount | number:2 }}</td>
 		</tr>
 	</tbody>
 </table>
