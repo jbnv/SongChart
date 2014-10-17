@@ -109,6 +109,7 @@ function SongChartController(
 		'b': "Descent Coefficient",
 		'timeToPeak': "Time to Peak"
 	});
+	$scope.columns.timeToPeak.hidden = true;
 		
 	$scope.dateString = function(scoreObject) {
 		return scoreObject.year + '-' + ("00"+scoreObject.month).substr(-2,2);

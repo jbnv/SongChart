@@ -110,9 +110,6 @@
 					<li data-ng-click="setCountLimit()">All</td>
 				</ul>
 			</li>
-			<li data-ng-hide="showSpinner">
-				<a tooltip-placement="bottom" tooltip="Artists Loaded"><i class="fa fa-paint-brush"></i> TODO</a>
-			</li>
         </ul>
 		<ul class="nav navbar-nav navbar-right">
 			<li>
@@ -285,7 +282,7 @@
 	<div class="modal-header">
 		<h3 class="modal-title">
 			<a href="http://playlists.wikidot.com/{{ song.fullname }}">{{song.title}}</a><br>
-			<small><a href="http://playlists.wikidot.com/{{ song.artist }}">{{ song.artistObject.name }}</a></small>
+			<small><a href="http://playlists.wikidot.com/{{ song.artist }}">{{ song.artistObject.title }}</a></small>
 		</h3>
 	</div>
 	<div class="modal-body">
