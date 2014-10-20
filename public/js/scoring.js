@@ -13,7 +13,7 @@ exports.score = function(song) {
 
 	song.debutRank = parseFloat(song.debutrank);
 	song.peakRank  = parseFloat(song.peakrank);
-	song.duration  = parseInt(song.months);
+	song.duration  = parseFloat(song.months);
 	
 	if (song.duration > 0) {
 
@@ -23,7 +23,7 @@ exports.score = function(song) {
 
 		song.pointRanks = [];
 		song.score = 0;
-		for (monthIndex = 0; monthIndex < song.duration; monthIndex += 0.25) {
+		for (monthIndex = 0, R = 0; R < Math.log(100); monthIndex += 0.25) {
 
 			// Calculate scaled point rank.
 			if (monthIndex < song.timeToPeak) {

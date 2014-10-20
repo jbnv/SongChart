@@ -272,7 +272,7 @@
 			<td data-ng-hide="columns.projectedRank.hidden">{{song.projectedRank | number:1 }}</td>
 			<td data-ng-hide="columns.debutRank.hidden">{{song.debutRank}}</td>
 			<td data-ng-hide="columns.peakRank.hidden">{{song.peakRank}}</td>
-			<td data-ng-hide="columns.duration.hidden"><span data-ng-show="showProjectedRank">{{song.monthIndex}} / </span>{{song.duration}}</td>
+			<td data-ng-hide="columns.duration.hidden"><span data-ng-hide="columns.projectedRank.hidden">{{song.monthIndex+1}} / </span>{{song.duration}}</td>
 			<td data-ng-hide="columns.timeToPeak.hidden">{{ song.timeToPeak | number:2 }}</td>
 		</tr>
 	</tbody>
