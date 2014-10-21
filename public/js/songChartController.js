@@ -122,9 +122,12 @@ function SongChartController(
 		};
 	}
 		
-	//TODO Add refresh parameter, which will be set by refresh button.
-	function getSongChartData()  {
+	function getSongChartData(refresh)  {
 		$scope.showSpinner = true;
+		
+		if (refresh) {
+			$scope.dataParameters.refresh = true;
+		}
 		
 		$scope.displayArray = _resources.songs.query(
 			$scope.dataParameters,
@@ -155,8 +158,8 @@ function SongChartController(
 		);
     };
 	
-	$scope.reload = getSongChartData; //TODO This needs to be generalized.
-
+	$scope.reload = getSongChartData;
+	
 	// If n not set, limit = all.
 	$scope.setCountLimit = function(n) {
 		$scope.filter.limit = n;
@@ -182,6 +185,20 @@ function SongChartController(
 			size: ''
 		});
 	};
+	
+	//TODO Move this to the song object prototype. 
+	$scope.pivotRanks = function(song) {
+		returnValue = [];
+		for (index in song.pointRanks) {
+			if (index % 4 == 0) {
+				month = [];
+				returnValue.push(month);
+			}
+			month.push(song.pointRanks[index].value);
+		}
+		return returnValue;
+	}
+	
 
 	$scope.init();
 }

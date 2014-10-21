@@ -135,7 +135,7 @@
 						</ul>
 					</li>
 					<li 
-						data-ng-click="reload()"
+						data-ng-click="reload(true)"
 						class="btn btn-default" 
 						tooltip-placement="bottom" tooltip="Reload content for current query."
 					><i data-ng-hide="showSpinner" class="fa fa-2x fa-refresh"></i>
@@ -256,6 +256,13 @@
 					</ul>
 				</div>
 			</th>
+			<th data-ng-hide="columns.projectedRank.hidden" data-ng-repeat="index in [1,2,3,4]">
+				<div class="dropdown">
+					<a href="#" data-toggle="dropdown" class="dropdown-toggle">W{{ index }}</a>
+					<ul class="dropdown-menu">
+					</ul>
+				</div>
+			</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -274,6 +281,7 @@
 			<td data-ng-hide="columns.peakRank.hidden">{{song.peakRank}}</td>
 			<td data-ng-hide="columns.duration.hidden"><span data-ng-hide="columns.projectedRank.hidden">{{song.monthIndex+1}} / </span>{{song.duration}}</td>
 			<td data-ng-hide="columns.timeToPeak.hidden">{{ song.timeToPeak | number:2 }}</td>
+			<td data-ng-hide="columns.projectedRank.hidden" data-ng-repeat="value in pivotRanks(song)[song.monthIndex]">{{value | number:1 }}</td>
 		</tr>
 	</tbody>
 </table>
