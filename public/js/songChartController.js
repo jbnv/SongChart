@@ -184,21 +184,7 @@ function SongChartController(
 			controller: 'alertModalController',
 			size: ''
 		});
-	};
-	
-	//TODO Move this to the song object prototype. 
-	$scope.pivotRanks = function(song) {
-		returnValue = [];
-		for (index in song.pointRanks) {
-			if (index % 4 == 0) {
-				month = [];
-				returnValue.push(month);
-			}
-			month.push(song.pointRanks[index].value);
-		}
-		return returnValue;
-	}
-	
+	};	
 
 	$scope.init();
 }

@@ -3,7 +3,6 @@
 function SongModalController(
 	$scope, $modalInstance, song
 ) {
-	console.log(song);
 	$scope.song = song;
 	$scope.identity = angular.identity;
 	
@@ -18,8 +17,9 @@ function SongModalController(
 				month = [];
 				returnValue.push(month);
 			}
-			month.push(pointRanks[index].value);
+			month.push(pointRanks[index]);
 		}
+		console.log('pivot',returnValue);
 		return returnValue;
 	}
 

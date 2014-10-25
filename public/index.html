@@ -281,7 +281,7 @@
 			<td data-ng-hide="columns.peakRank.hidden">{{song.peakRank}}</td>
 			<td data-ng-hide="columns.duration.hidden"><span data-ng-hide="columns.projectedRank.hidden">{{song.monthIndex+1}} / </span>{{song.duration}}</td>
 			<td data-ng-hide="columns.timeToPeak.hidden">{{ song.timeToPeak | number:2 }}</td>
-			<td data-ng-hide="columns.projectedRank.hidden" data-ng-repeat="value in pivotRanks(song)[song.monthIndex]">{{value | number:1 }}</td>
+			<td data-ng-hide="columns.projectedRank.hidden" data-ng-repeat="index in [0,1,2,3]">{{song.pointRanks[song.monthIndex*4+index] | number:1 }}</td>
 		</tr>
 	</tbody>
 </table>
