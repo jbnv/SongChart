@@ -44,7 +44,7 @@ exports.score = function(song) {
 			}
 
 			// Store and use the value.
-			song.pointRanks.push(Math.exp(R));
+			song.pointRanks.push(Math.floor(Math.exp(R)*10)/10);
 		}
 		
 	}
