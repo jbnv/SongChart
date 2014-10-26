@@ -283,6 +283,51 @@ app.get('/page/:fullname', function(request,response) {
 	
 });
 
+app.get('/setRanks', function(request,response) {
+
+	var promises = [];
+	var convertedList = [];
+	
+	for (var fullname in _songs) {
+		if (_songs.hasOwnProperty(fullname)) {
+			song = _songs[fullname];
+			if (!song.ranks) { // Don't calculate and push if already pushed.
+				if (song.pointRanks.length > 0) { // must already have some point ranks calculated
+					
+					content = song.content+'\nranks: \''+JSON.stringify(song.pointRanks)+'\'';
+					
+					param = {
+						'site': Wikidot.site,
+						'page': song.fullname,
+						'content': content,
+						'revision_comment': 'Set ranks via Bluemix application.'
+					};
+						
+					promises.push(Q.nfcall(Wikidot.call,'pages.save_one',param));
+				}
+			}
+		}
+	}
+	
+	Q.allSettled(promises)
+	.then(function(results) {
+		html = "<p>Results of operations on "+promises.length+" songs:</p><ul>";
+		results.forEach(function (result) {
+			html += "<li>"; 
+			if (result.state === "fulfilled") {
+				html += "<a href='http://playlists.wikidot.com/"+result.value.fullname+"'>"+result.value.title+"</a>";
+			} else {
+				html += "FAIL "+JSON.stringify(result);
+			}
+			html += "</li>";
+		});
+		html += "</ul>";
+		response.send(html);
+	})
+	.done();
+
+});
+
 // There are many useful environment variables available in process.env.
 // VCAP_APPLICATION contains useful information about a deployed application.
 var appInfo = JSON.parse(process.env.VCAP_APPLICATION || "{}");
