@@ -77,6 +77,16 @@ exports.getPage = function(fullname,callback) {
 	}, callback);
 };
 
+// page: WikidotPage object below.
+exports.putPage = function(page,comment,callback) {
+	exports.call('pages.save_one',{
+		'site': exports.site,
+		'page': page.fullname,
+		'content': page.content,
+		'revision_comment': comment ? comment : "Change via Wikidot library."
+	}, callback);
+};
+
 exports.WikidotPage = function() {
 
 	this.injectContent = function(oData,contentType) {
