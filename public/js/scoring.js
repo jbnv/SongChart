@@ -13,41 +13,26 @@ var _ = require('underscore');
 
 exports.score = function(song) {
 
-	song.debutRank = parseFloat(song.debutrank);
-	song.peakRank  = parseFloat(song.peakrank);
-	song.duration  = parseFloat(song.months);
-	song.pointRanks = [];
-	song.score = 0;
+	// Now we always assume that .ranks is populated.
+	// in the following format: [ debutRank, ascentRank{0,}, peakRank, ...]
+	// Ranks are projected geometrically from the finakl two ranks.
+
+	if (!song.ranks) return;
+	song.pointRanks = JSON.parse(song.ranks);
 	
-	if (song.ranks) {
-
-		song.pointRanks = JSON.parse(song.ranks);
-		song.debutRank = parseFloat(song.pointRanks[0]);
-		song.peakRank = parseFloat(_.min(song.pointRanks));
-		song.duration = song.pointRanks.length/4;
-
-	} else 
-	if (song.duration > 0) {
-
-		D = Math.log(song.debutRank);
-		P = Math.log(song.peakRank);
-		song.timeToPeak = 1 - Math.exp(1 - Math.sqrt(song.debutRank / song.peakRank));
-
-		for (monthIndex = 0, R = 0; R < Math.log(100); monthIndex += 0.25) {
-
-			// Calculate scaled point rank.
-			if (monthIndex < song.timeToPeak) {
-				R = D + (P-D)*monthIndex/song.timeToPeak;
-			} else {
-				m0 = monthIndex - song.timeToPeak;
-				R = P + 3*m0/(song.duration-song.timeToPeak);
-			}
-
-			// Store and use the value.
-			song.pointRanks.push(Math.floor(Math.exp(R)*10)/10);
-		}
+	song.debutRank = parseFloat(song.pointRanks[0]);
+	song.peakRank = parseFloat(_.min(song.pointRanks));
 		
+	rank0 = parseFloat(song.pointRanks[song.pointRanks.length-1]);
+	rank1 = parseFloat(song.pointRanks[song.pointRanks.length-2]);
+	scale = rank0/rank1;
+	
+	while ((rank0 < 100) && (scale > 1.1)) {
+		rank0 *= scale;
+		song.pointRanks.push(rank0);
 	}
+	
+	song.duration = song.pointRanks.length/4;
 
 	// Find the four weekly ranks for the given month, and average them.
 	// Note: m is a month index, but the index of pointRanks[] is a week index.
@@ -60,6 +45,7 @@ exports.score = function(song) {
 	}
 	
 	// Calculate score from point ranks.
+	song.score = 0;
 	for (var index in song.pointRanks) {
 		S = Math.log(song.pointRanks[index]);
 		if (S < 3) { song.score += (3-S); }
