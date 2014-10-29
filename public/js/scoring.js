@@ -26,8 +26,9 @@ exports.score = function(song) {
 	rank0 = parseFloat(song.pointRanks[song.pointRanks.length-1]);
 	rank1 = parseFloat(song.pointRanks[song.pointRanks.length-2]);
 	scale = rank0/rank1;
+	if (scale < 1.25) { scale = 1.25; } // prevent slow descents
 	
-	while ((rank0 < 100) && (scale > 1.1)) {
+	while (rank0 < 100) {
 		rank0 *= scale;
 		song.pointRanks.push(rank0);
 	}
