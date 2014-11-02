@@ -48,13 +48,18 @@ var _songs = {};
 var _calendar = new Calendar();
 var _artists = {};
 
-function getSongPageList() {
+function getSongPageList(timeout) {
 	console.log("Getting list of song pages.");
+	if (!timeout) { timeout = 1000; }
 	Wikidot.listCategory('s',function(error,list) {
 		if (error) {
-			console.log('ERROR getSongPageList:',error);
+			console.log('ERROR getSongPageList: %s; retry after %s ms.',error,timeout);
+			if (timeout < 30*60*1000) {
+				setTimeout(getSongPageList,timeout,timeout*2);
+			}
 			return;
 		}
+		console.log("Received %s song pages.",list.length);
 		for (var index in list) {
 			songFullname = list[index];
 			if (!/^s:\d+$/.test(songFullname)) continue;
@@ -151,7 +156,7 @@ app.get('/songs', function(request,response) {
 	var decade = request.query.decade;
 	var year   = request.query.year;
 	var month  = request.query.month;
-	var refresh = request.query.refresh; // can be anything
+	var refresh = false; // disabled for now - request.query.refresh;
 	var top    = request.query.top; // default: all
 
 	orderField = request.query.sortField ? request.query.sortField : "-score";
@@ -214,7 +219,9 @@ app.get('/artists', function(request,response) {
 	var orderField 
 		= request.query.sortField ? request.query.sortField : "-score";
 
-	if (request.query.reload) {
+	var refresh = false; // disabled for now - request.query.reload;
+		
+	if (refresh) {
 		 q = Q.fcall(getSongPageList);
 	} else {
 		q = Q.fcall(function() { return; } );
