@@ -201,7 +201,7 @@
 				</div>
 			</th>
 			<th data-ng-hide="columns.projectedRank.hidden"></th>
-			<th data-ng-hide="columns.projectedRank.hidden">
+			<th data-ng-hide="columns.projectedRank.hidden" style="text-align:right">
 				<div class="dropdown">
 					<a href="#" data-toggle="dropdown" class="dropdown-toggle">PR</a>
 					<ul class="dropdown-menu">
@@ -256,7 +256,7 @@
 					</ul>
 				</div>
 			</th>
-			<th data-ng-hide="columns.projectedRank.hidden" data-ng-repeat="index in [1,2,3,4]">
+			<th data-ng-hide="columns.projectedRank.hidden" data-ng-repeat="index in [1,2,3,4]" style="text-align:right">
 				<div class="dropdown">
 					<a href="#" data-toggle="dropdown" class="dropdown-toggle">W{{ index }}</a>
 					<ul class="dropdown-menu">
@@ -276,12 +276,12 @@
 			<td data-ng-hide="columns.debutDate.hidden">{{dateString(song)}}</td>
 			<td data-ng-hide="columns.score.hidden">{{ song.score | number:2 }}</td>
 			<td data-ng-hide="columns.projectedRank.hidden"><i class="fa fa-star text-primary" data-ng-show="song.isDebut"></i></th>
-			<td data-ng-hide="columns.projectedRank.hidden">{{song.projectedRank | number:1 }}</td>
+			<td data-ng-hide="columns.projectedRank.hidden" style="text-align:right">{{song.projectedRank | number:1 }}</td>
 			<td data-ng-hide="columns.debutRank.hidden">{{song.debutRank}}</td>
 			<td data-ng-hide="columns.peakRank.hidden">{{song.peakRank}}</td>
 			<td data-ng-hide="columns.duration.hidden"><span data-ng-hide="columns.projectedRank.hidden">{{song.monthIndex+1}} / </span>{{song.duration}}</td>
 			<td data-ng-hide="columns.timeToPeak.hidden">{{ song.timeToPeak | number:2 }}</td>
-			<td data-ng-hide="columns.projectedRank.hidden" data-ng-repeat="index in [0,1,2,3]">{{song.pointRanks[song.monthIndex*4+index] | number:1 }}</td>
+			<td data-ng-hide="columns.projectedRank.hidden" data-ng-repeat="index in [0,1,2,3]" style="text-align:right">{{song.pointRanks[song.monthIndex*4+index] | number:1 }}</td>
 		</tr>
 	</tbody>
 </table>
