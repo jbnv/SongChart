@@ -15,11 +15,16 @@ exports.score = function(song) {
 
 	// Now we always assume that .ranks is populated.
 	// in the following format: [ debutRank, ascentRank{0,}, peakRank, ...]
-	// Ranks are projected geometrically from the finakl two ranks.
+	// Ranks are projected geometrically from the final two ranks.
 
 	if (!song.ranks) return;
-	song.pointRanks = JSON.parse(song.ranks);
-	
+	try {
+		song.pointRanks = JSON.parse(song.ranks);
+	} catch (ex) {
+		console.log('Song %s (%s) has an invalid ranks field.',song.fullname,song.title);
+		return;
+	}
+
 	song.debutRank = parseFloat(song.pointRanks[0]);
 	song.peakRank = parseFloat(_.min(song.pointRanks));
 		
@@ -28,7 +33,7 @@ exports.score = function(song) {
 	scale = rank0/rank1;
 	if (scale < 1.25) { scale = 1.25; } // prevent slow descents
 	
-	while (rank0 < 100) {
+	while (!((rank0 > 50) && (song.pointRanks.length % 4 == 0))) {
 		rank0 *= scale;
 		song.pointRanks.push(rank0);
 	}
