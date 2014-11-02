@@ -145,8 +145,8 @@ function SongChartController(
 			},
 			function(httpResponse) { // error callback
 				alertService.addAlert({
-					"title": "Failure to Get Data",
-					"message": "The call to scores/"+y+(m?'/'+m:'')+" failed to return data.",
+					"title": "Failure to Get Score Data",
+					"message": "The call to /scores failed to return data.",
 					"data": httpResponse.data, 
 					'status':httpResponse.status, 
 					'headers':httpResponse.headers, 
