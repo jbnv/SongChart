@@ -54,8 +54,24 @@ function SongChartController(
 			$scope.columns.hide('projectedRank');
 			$scope.columns.show('score');
 			$scope.showIsDebut = false;
-			$scope.dataParameters = { 'decade': p.decade, 'sortField':'-score' }; //TODO add refresh
-			getSongChartData(); //TODO add refresh
+			$scope.dataParameters = { 
+				'pagename': 'calendar:'+p.decade+'s', 
+				'decade': p.decade, 
+				'sortField':'-score',
+				'transformFn': function(songDataArray) {
+					return {
+						rank: 0, //TODO
+						slug: songDataArray[0],
+						title: songDataArray[1],
+						artist: songDataArray[2],
+						score: songDataArray[3],
+						debutRank: songDataArray[4],
+						peakRank: songDataArray[5],
+						duration: songDataArray[6]
+					};
+				}
+			}; //TODO add refresh
+			getSongChartData();
 		} else if (p.year) {
 			p.decade = p.year - p.year%10;
 			$scope.filter = { 
@@ -69,20 +85,23 @@ function SongChartController(
 			$scope.dataParameters = { 'year': p.year }; //TODO add refresh
 			if (p.month) {
 				$scope.resultTitle = $scope.months[p.month-1]+' '+p.year;
+				$scope.dataParameters.pagename = 'calendar:'+p.year+'-'+('0'+p.month).substr(0,2);
 				$scope.dataParameters.month = p.month;
 				$scope.showIsDebut = true;
 				$scope.columns.show('projectedRank');
 				$scope.columns.hide('score');
 				$scope.dataParameters.sortField = 'projectedRank';
 			} else {
+				$scope.dataParameters.pagename = 'calendar:'+p.year;
 				$scope.resultTitle = p.year;
 				$scope.showIsDebut = false;
 				$scope.columns.hide('projectedRank');
 				$scope.columns.show('score');
 				$scope.dataParameters.sortField = '-score';
 			}		
-			getSongChartData(); //TODO add refresh
+			getSongChartData();
 		} else {
+			console.log('Clearing display array.');
 			$scope.displayArray = [];
 			$scope.resultTitle = '(Invalid or null filter)';
 			return;
@@ -129,10 +148,14 @@ function SongChartController(
 			$scope.dataParameters.refresh = true;
 		}
 		
-		$scope.displayArray = _resources.songs.query(
-			$scope.dataParameters,
-			function(content, responseHeaders) { // success callback
-				angular.forEach(content, function(song) {
+		_resources.page.get(
+			{ 'fullname': 'data:'+$scope.dataParameters.pagename },
+			function(pageData, responseHeaders) { // success callback
+				$scope.displayArray = [];
+				chartData = JSON.parse(pageData.content);
+				angular.forEach(chartData, function(songDataArray) {
+					var song = $scope.dataParameters.transformFn(songDataArray);
+					$scope.displayArray.push(song);
 					var request = { 'fullname': song.artist };
 					var artistData = _resources.page.get(
 						request,
@@ -140,7 +163,9 @@ function SongChartController(
 						addAlert('page/'+song.artist,"Artist Data",request) // returns error callback function
 					);
 					//TODO In month mode, check debut ranks on debut songs and mark if out of order.
-				})
+				});
+				$scope.setSort($scope.dataParameters.sortField);
+				console.log('sort',$scope.sortPredicate);
 				$scope.showSpinner = false;
 			},
 			function(httpResponse) { // error callback

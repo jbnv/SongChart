@@ -267,7 +267,7 @@
 	</thead>
 	<tbody>
 		<tr data-ng-repeat="song in displayArray | orderBy:sortPredicate | top:filter.limit ">
-			<td data-ng-hide="columns.rank.hidden">{{ song.rank }}</td>
+			<td data-ng-hide="columns.rank.hidden">{{ $index+1 }}</td>
 			<td data-ng-hide="columns.title.hidden"><a href="#" data-ng-click="openSongModal(song)">{{song.title}}</a></td>
 			<td data-ng-hide="columns.artistName.hidden">
 				<a href="http://playlists.wikidot.com/{{ song.artist }}">{{ song.artistObject.title }}</a>
