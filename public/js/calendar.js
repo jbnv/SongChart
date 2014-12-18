@@ -35,7 +35,6 @@ module.exports = function() {
 		return {
 			'byDecade': function(decade) { 
 				decade = parseInt(decade);
-				//console.log('get.byDecade',decade);
 				matches = [ _decades[decade] ];
 				for (y = 0; y < 10; y++) {
 					matches.push(_years[decade+y]);
@@ -44,13 +43,10 @@ module.exports = function() {
 			},
 			'byYear':   function(year) { 
 				year = parseInt(year);
-				//console.log('get.byYear',year);
 				return _years[year];
 			},
 			'byMonth':  function(year,month) { 
 				v = parseInt(year)*12+parseInt(month);
-				//console.log('get.byMonth',year,month,v);
-				//console.log(_months[v].length);
 				return _months[v]; 
 			}
 		};
