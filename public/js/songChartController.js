@@ -98,6 +98,18 @@ function SongChartController(
 				$scope.columns.hide('projectedRank');
 				$scope.columns.show('score');
 				$scope.dataParameters.sortField = '-score';
+				$scope.dataParameters.transformFn = function(songDataArray) {
+					return {
+						rank: 0, //TODO
+						slug: songDataArray[0],
+						title: songDataArray[1],
+						artist: songDataArray[2],
+						score: songDataArray[3],
+						debutRank: songDataArray[4],
+						peakRank: songDataArray[5],
+						duration: songDataArray[6]
+					};
+				};
 			}		
 			getSongChartData();
 		} else {
