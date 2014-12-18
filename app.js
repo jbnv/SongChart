@@ -1,10 +1,15 @@
 /*jshint node:true*/
 
+console.log('[app.js] Application setup beginning.');
+
 var Express = require('express'),
+	Util = require('util'),
 	Wikidot = require('./public/js/wikidot'),
 	Scoring = require('./public/js/scoring'),
 	Calendar = require('./public/js/calendar'),
 	Timespan = require('./public/js/timespan'),
+	Jasmine = require('./public/js/jasmine'),
+	Recalculate = require('./public/js/recalculate'),
 	Q = require('q'),
 	_ = require('underscore');
 
@@ -22,6 +27,11 @@ app.engine('html', require('ejs').renderFile);
 
 // render index page
 app.get('/', function(request,response) {
+	console.log(
+		'/',
+		'_songs: %s; _calendar: %s; _artists: %s',
+		roughSizeOfObject(_songs),roughSizeOfObject(_calendar),roughSizeOfObject(_artists)
+	);
 	res.render("index.html");
 });
 //TODO songChart.html
@@ -34,7 +44,39 @@ var deferred = Q.defer();
 
 // Utility functions.
 
+function roughSizeOfObject( object ) {
 
+    var objectList = [];
+    var stack = [ object ];
+    var bytes = 0;
+
+    while ( stack.length ) {
+        var value = stack.pop();
+
+        if ( typeof value === 'boolean' ) {
+            bytes += 4;
+        }
+        else if ( typeof value === 'string' ) {
+            bytes += value.length * 2;
+        }
+        else if ( typeof value === 'number' ) {
+            bytes += 8;
+        }
+        else if
+        (
+            typeof value === 'object'
+            && objectList.indexOf( value ) === -1
+        )
+        {
+            objectList.push( value );
+
+            for( var i in value ) {
+                stack.push( value[ i ] );
+            }
+        }
+    }
+    return bytes;
+}
 function pushSong(pArray,pSlug,pSong) {
 	if (pArray[pSlug]) {
 		pArray[pSlug].push(pSong);
@@ -47,27 +89,6 @@ function pushSong(pArray,pSlug,pSong) {
 var _songs = {};
 var _calendar = new Calendar();
 var _artists = {};
-
-function getSongPageList(timeout) {
-	console.log("Getting list of song pages.");
-	if (!timeout) { timeout = 1000; }
-	Wikidot.listCategory('s',function(error,list) {
-		if (error) {
-			console.log('ERROR getSongPageList: %s; retry after %s ms.',error,timeout);
-			if (timeout < 30*60*1000) {
-				setTimeout(getSongPageList,timeout,timeout*2);
-			}
-			return;
-		}
-		console.log("Received %s song pages.",list.length);
-		for (var index in list) {
-			songFullname = list[index];
-			if (!/^s:\d+$/.test(songFullname)) continue;
-			if (_songs[songFullname]) continue;
-			setImmediate(getPage, { 'fullname':songFullname, 'callback':processSongPage });
-		} // for list
-	}); // Wikidot.listCategory
-} // getSongPageList
 
 // p: { 'fullname': fullname of page to get, 'callback': function to process the received content }
 function getPage(p) {
@@ -82,42 +103,6 @@ function getPage(p) {
 	}); // Wikidot.getPage
 }
 			
-function processSongPage(content) {
-	if (_songs[content.fullname]) return; // prevent duplicates
-
-	song = new Wikidot.WikidotPage();
-	song.injectContent(content, Wikidot.ContentTypes.DataForm);
-	Scoring.score(song);
-	//IDEA Push calculated song data back into Wikidot?
-	
-	_songs[song.fullname] = song;
-	pushSong(_artists,song.artist,song);
-	
-	// File the song in the appropriate calendar entries.
-	slug = song.date;
-	timespan = new Timespan(slug);
-	decade = timespan.decade;
-	year   = timespan.year;
-	month0 = timespan.month;
-	if (decade) {
-		_calendar.put(song).byDecade(decade);
-	} else if (year) {
-		_calendar.put(song).byYear(year);
-		if (year && month0) {
-			// In this case, the song will be filed multiple times --
-			// once for each month during its duration.
-			for (monthIndex = 0; monthIndex < song.duration; monthIndex++) {
-				thisSong = _.clone(song);
-				if (monthIndex == 0) thisSong.isDebut = true;
-				thisSong.monthIndex = monthIndex;
-				thisSong.projectedRank = thisSong.rank(monthIndex);
-				_calendar.put(thisSong).byMonth(year,month0+monthIndex);
-				//IDEA Push song ratings back into Wikidot?
-			}
-		} 
-	} //if
-}
-
 app.get('/scores/artist/:slug', function(request,response) {
 	response.json(_artists[request.params.slug]);
 });
@@ -265,7 +250,7 @@ app.get('/artists', function(request,response) {
 	.done();
 });
 
-function getPages(list) {
+function getPagesPromise(list) {
 	var promises = list.map(function(slug) {
 		return Q.nfcall(Wikidot.getPage, slug);
 	});
@@ -276,7 +261,7 @@ app.get('/page/:fullname', function(request,response) {
 
 	console.log('/page',request.params.fullname);
 	
-    getPages([request.params.fullname])
+    getPagesPromise([request.params.fullname])
     .then(
 		function(returnValue) { 
 			response.json(returnValue[0]); // Wikidot returns an array, but angular $resource.get expects an object.
@@ -290,6 +275,13 @@ app.get('/page/:fullname', function(request,response) {
 	
 });
 
+app.get('/runJasmine', function(request,response) {
+	console.log('/jasmine');
+	response.json(Jasmine.run());	
+});
+
+app.get('/recalculate', Recalculate);
+		
 
 // There are many useful environment variables available in process.env.
 // VCAP_APPLICATION contains useful information about a deployed application.
@@ -313,10 +305,6 @@ var host = (process.env.VCAP_APP_HOST || 'localhost');
 var port = (process.env.VCAP_APP_PORT || 3000);
 app.listen(port, host);
 
-// Start application loops.
-setImmediate(getSongPageList);
-// TODO Make the refresh occur on demand--when the Refresh button is pressed in the application.
-
 // All done.
-console.log('Application setup complete.');
+console.log('[app.js] Application setup complete.');
 // ================================================================================

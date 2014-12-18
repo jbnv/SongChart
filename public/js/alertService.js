@@ -11,7 +11,7 @@ function AlertService() {
 		var newLength = this.alerts.push(content);
 	}
 
-	function addResourceAlert(path,title,request,httpResponse) {
+	this.addResourceAlert = function(path,title,request,httpResponse) {
 		this.alerts.push({
 			"type": "danger",
 			"title": "Failure to Get "+title,
